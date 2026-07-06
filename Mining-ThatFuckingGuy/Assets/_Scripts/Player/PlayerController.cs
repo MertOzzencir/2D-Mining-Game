@@ -1,0 +1,139 @@
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+    [SerializeField] private float speed;
+    [Header("Gravity")]
+    [SerializeField] private float gravityDecreaseMultiplier;
+    [SerializeField] private float gravityVelocitySpeed;
+    [SerializeField] private float gravityTerminalVelocity = -20f;
+    [Header("Jump")]
+    [SerializeField] private float jumpHeight = 2f;
+    [SerializeField] private float groundCheckDistance = 0.1f;
+    [SerializeField] private AnimationCurve jumpCurve;
+
+    private const float SKIN = 0.01f;
+
+    private InputManager inputM;
+    private float verticalVelocity;
+    private CapsuleCollider c;
+    private bool jumpState;
+    private Vector3 targetJumpPosition;
+    private Vector3 startJumpPosition;
+
+    void Awake()
+    {
+        c = GetComponent<CapsuleCollider>();
+    }
+
+    void Start()
+    {
+        inputM = FindAnyObjectByType<InputManager>();
+    }
+
+    void Update()
+    {
+        Vector2 input = inputM.MovementVectorNormalized();
+        HandleVertical();
+        HandleHorizontal(input);
+    }
+
+    private void HandleVertical()
+    {
+        if (jumpState)
+        {
+
+            float remaining = targetJumpPosition.y - transform.position.y;
+            if (remaining <= SKIN)
+            {
+                verticalVelocity = 0f;
+                jumpState = false;
+                return;
+            }
+            float normalized = (transform.position.y - startJumpPosition.y) / (targetJumpPosition.y - startJumpPosition.y);
+            Debug.Log(normalized);
+            float jumpMultiplier = jumpCurve.Evaluate(normalized);
+            float desired = Mathf.Min(verticalVelocity * Time.deltaTime * jumpMultiplier, remaining);
+            float allowed = SweepMove(Vector3.up, desired, out bool blocked);
+            transform.position += Vector3.up * allowed;
+            Debug.Log("Jumping");
+            if (blocked)
+            {
+                jumpState = false;
+                verticalVelocity = 0f;
+            }
+            return;
+        }
+        Debug.Log("Falling");
+        verticalVelocity += Physics.gravity.y / gravityDecreaseMultiplier * Time.deltaTime * gravityVelocitySpeed;
+        verticalVelocity = Mathf.Max(verticalVelocity, gravityTerminalVelocity);
+
+        float fallDesired = -verticalVelocity * Time.deltaTime;
+        float fallAllowed = SweepMove(Vector3.down, fallDesired, out bool grounded);
+        transform.position += Vector3.down * fallAllowed;
+        if (grounded) verticalVelocity = 0;
+    }
+
+    private void HandleHorizontal(Vector2 input)
+    {
+        if (input.x == 0) return;
+
+        Vector3 direction = input.x > 0 ? transform.forward : -transform.forward;
+        float desired = Mathf.Abs(input.x) * speed * Time.deltaTime;
+
+        float allowed = SweepMove(direction, desired, out _);
+        transform.position += direction * allowed;
+    }
+
+
+    private float SweepMove(Vector3 direction, float desiredDistance, out bool blocked)
+    {
+        if (desiredDistance <= 0f) { blocked = false; return 0f; }
+
+        float radius = c.radius;
+        float halfHeight = Mathf.Max(c.height / 2f - radius, 0f);
+        Vector3 center = transform.position + c.center;
+        Vector3 point1 = center + Vector3.up * halfHeight;
+        Vector3 point2 = center - Vector3.up * halfHeight;
+
+        if (Physics.CapsuleCast(point1, point2, radius, direction, out RaycastHit hit, desiredDistance + SKIN))
+        {
+            blocked = true;
+            return Mathf.Max(hit.distance - SKIN, 0f);
+        }
+
+        blocked = false;
+        return desiredDistance;
+    }
+
+    private bool IsGrounded()
+    {
+        float radius = c.radius;
+        float halfHeight = Mathf.Max(c.height / 2f - radius, 0f);
+        Vector3 center = transform.position + c.center;
+        Vector3 point1 = center + Vector3.up * halfHeight;
+        Vector3 point2 = center - Vector3.up * halfHeight;
+
+        return Physics.CapsuleCast(point1, point2, radius, Vector3.down, groundCheckDistance);
+    }
+
+    private float CalculateJumpPower()
+    {
+        float effectiveGravity = Mathf.Abs(Physics.gravity.y / gravityDecreaseMultiplier * gravityVelocitySpeed);
+        return Mathf.Sqrt(2f * effectiveGravity * jumpHeight);
+    }
+
+    private void Jump()
+    {
+        if (IsGrounded())
+        {
+            verticalVelocity = CalculateJumpPower();
+            jumpState = true;
+            targetJumpPosition = transform.position + Vector3.up * jumpHeight;
+            startJumpPosition = transform.position;
+        }
+    }
+
+    void OnEnable() { InputManager.OnJump += Jump; }
+    void OnDisable() { InputManager.OnJump -= Jump; }
+}
