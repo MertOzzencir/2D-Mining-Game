@@ -44,7 +44,16 @@ public class DungeonManager : MonoBehaviour
                 g.transform.parent = transform;
                 break;
             case ObjectType.Destructable:
-                DestructableBase g2 = Instantiate(destructableData.Prefab, spawnPosition, Quaternion.identity);
+                int randomRotation = Random.Range(0, 4);
+                Vector3 randomRotationVector = Vector3.zero;
+                switch (randomRotation)
+                {
+                    case 0: randomRotationVector = Vector3.zero; break;
+                    case 1: randomRotationVector = Vector3.up * 90; break;
+                    case 2: randomRotationVector = Vector3.up * 180; break;
+                    case 3: randomRotationVector = Vector3.up * 270; break;
+                }
+                DestructableBase g2 = Instantiate(destructableData.Prefab, spawnPosition, Quaternion.Euler(randomRotationVector));
                 g2.transform.parent = transform;
                 g2.OnDeath += HandleDeathDestructable;
                 break;

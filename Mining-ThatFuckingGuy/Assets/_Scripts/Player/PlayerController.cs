@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -11,11 +12,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpHeight = 2f;
     [SerializeField] private float groundCheckDistance = 0.1f;
     [SerializeField] private AnimationCurve jumpCurve;
+    [Header("Visual")]
+    [SerializeField] private Transform visual;
 
     private const float SKIN = 0.01f;
 
     private InputManager inputM;
     private float verticalVelocity;
+    private float horizontalVelocity;
     private CapsuleCollider c;
     private bool jumpState;
     private Vector3 targetJumpPosition;
@@ -36,6 +40,19 @@ public class PlayerController : MonoBehaviour
         Vector2 input = inputM.MovementVectorNormalized();
         HandleVertical();
         HandleHorizontal(input);
+        HandleVisual(input);
+    }
+
+    private void HandleVisual(Vector2 input)
+    {
+        if (input.x > 0)
+        {
+            visual.localEulerAngles = Vector3.zero;
+        }
+        else if (input.x < 0)
+        {
+            visual.localEulerAngles = new Vector3(0,180,0);
+        }
     }
 
     private void HandleVertical()
@@ -82,6 +99,7 @@ public class PlayerController : MonoBehaviour
         float desired = Mathf.Abs(input.x) * speed * Time.deltaTime;
 
         float allowed = SweepMove(direction, desired, out _);
+        horizontalVelocity = allowed;
         transform.position += direction * allowed;
     }
 
@@ -105,7 +123,11 @@ public class PlayerController : MonoBehaviour
         blocked = false;
         return desiredDistance;
     }
-
+    public float GetAnyDirectionVelocity()
+    {
+        if (inputM.MovementVectorNormalized() == Vector2.zero) return 0;
+        return 1;
+    }
     private bool IsGrounded()
     {
         float radius = c.radius;
