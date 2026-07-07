@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private LayerMask generalCollider;
     [SerializeField] private float speed;
     [Header("Gravity")]
     [SerializeField] private float gravityDecreaseMultiplier;
@@ -51,7 +52,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (input.x < 0)
         {
-            visual.localEulerAngles = new Vector3(0,180,0);
+            visual.localEulerAngles = new Vector3(0, 180, 0);
         }
     }
 
@@ -68,7 +69,6 @@ public class PlayerController : MonoBehaviour
                 return;
             }
             float normalized = (transform.position.y - startJumpPosition.y) / (targetJumpPosition.y - startJumpPosition.y);
-            Debug.Log(normalized);
             float jumpMultiplier = jumpCurve.Evaluate(normalized);
             float desired = Mathf.Min(verticalVelocity * Time.deltaTime * jumpMultiplier, remaining);
             float allowed = SweepMove(Vector3.up, desired, out bool blocked);
@@ -114,7 +114,7 @@ public class PlayerController : MonoBehaviour
         Vector3 point1 = center + Vector3.up * halfHeight;
         Vector3 point2 = center - Vector3.up * halfHeight;
 
-        if (Physics.CapsuleCast(point1, point2, radius, direction, out RaycastHit hit, desiredDistance + SKIN))
+        if (Physics.CapsuleCast(point1, point2, radius, direction, out RaycastHit hit, desiredDistance + SKIN, generalCollider))
         {
             blocked = true;
             return Mathf.Max(hit.distance - SKIN, 0f);

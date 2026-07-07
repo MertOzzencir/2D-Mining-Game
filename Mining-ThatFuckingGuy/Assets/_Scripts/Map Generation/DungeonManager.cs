@@ -40,20 +40,22 @@ public class DungeonManager : MonoBehaviour
                 //Do nothing
                 break;
             case ObjectType.Undestructable:
-                GameObject g = Instantiate(unbreakablePrefab, spawnPosition, Quaternion.identity);
+                int randomRotation2 = Random.Range(0, 4);
+                Vector3 randomRotationVector2 = Vector3.zero;
+                switch (randomRotation2)
+                {
+                    case 0: randomRotationVector2 = Vector3.zero; break;
+                    case 1: randomRotationVector2 = Vector3.up * 90; break;
+                    case 2: randomRotationVector2 = Vector3.up * 180; break;
+                    case 3: randomRotationVector2 = Vector3.up * 270; break;
+                }
+                GameObject g = Instantiate(unbreakablePrefab, spawnPosition, Quaternion.Euler(randomRotationVector2));
                 g.transform.parent = transform;
                 break;
             case ObjectType.Destructable:
-                int randomRotation = Random.Range(0, 4);
-                Vector3 randomRotationVector = Vector3.zero;
-                switch (randomRotation)
-                {
-                    case 0: randomRotationVector = Vector3.zero; break;
-                    case 1: randomRotationVector = Vector3.up * 90; break;
-                    case 2: randomRotationVector = Vector3.up * 180; break;
-                    case 3: randomRotationVector = Vector3.up * 270; break;
-                }
-                DestructableBase g2 = Instantiate(destructableData.Prefab, spawnPosition, Quaternion.Euler(randomRotationVector));
+
+                DestructableBase g2 = Instantiate(destructableData.Prefab, spawnPosition, Quaternion.identity);
+                g2.OnSpawned();
                 g2.transform.parent = transform;
                 g2.OnDeath += HandleDeathDestructable;
                 break;

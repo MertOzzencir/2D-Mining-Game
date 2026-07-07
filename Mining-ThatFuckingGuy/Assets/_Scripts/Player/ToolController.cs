@@ -6,7 +6,7 @@ public class ToolController : MonoBehaviour
 
     [SerializeField] private float attackDamage;
     [SerializeField] private Transform toolRotation;
-    [SerializeField] private Transform toolPlace;
+    [SerializeField] private Transform toolVisual;
     [SerializeField] private ToolBase[] tools;
 
     private ToolBase CurrentTool;
@@ -15,17 +15,6 @@ public class ToolController : MonoBehaviour
         if (CurrentTool == null) return;
 
         CurrentTool.UpdateUse();
-
-        Plane plane = new Plane(Vector3.right, CurrentTool.transform.position);
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (plane.Raycast(ray, out float enter))
-        {
-            Vector3 hitPoint = ray.GetPoint(enter);
-            hitPoint.x = 0;
-            Vector3 direction = (hitPoint - toolRotation.transform.position).normalized;
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            toolRotation.rotation = lookRotation;
-        }
     }
     private void PickTool(int obj)
     {
@@ -51,7 +40,7 @@ public class ToolController : MonoBehaviour
         }
 
         CurrentTool = tools[obj];
-        CurrentTool.Equip(toolPlace.transform);
+        CurrentTool.Equip(toolRotation.transform);
     }
     void OnEnable()
     {
