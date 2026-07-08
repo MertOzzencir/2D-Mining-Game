@@ -1,12 +1,17 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class ToolBase : MonoBehaviour
 {
-    public float maxRange;
-    public float cooldownTimer;
+    public ToolSO Data;
     public bool MainUseState { get; set; }
+    public Dictionary<UpgradeType, float> stats = new();
+
     public bool AlternativeState { get; set; }
     public abstract void UpdateUse();
+    public abstract void UpgradeSelf(UpgradeData upgradeData);
+
+
     public virtual void MainUse(bool state)
     {
         MainUseState = state;
@@ -39,4 +44,5 @@ public abstract class ToolBase : MonoBehaviour
         InputManager.OnMouseLeft -= MainUse;
         InputManager.OnMouseRight -= AlternativeUse;
     }
+
 }

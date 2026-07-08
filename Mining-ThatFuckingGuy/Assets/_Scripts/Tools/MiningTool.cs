@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MiningTool : ToolBase
@@ -5,15 +6,19 @@ public class MiningTool : ToolBase
     [SerializeField] private LayerMask destructable;
     [SerializeField] private Transform visual;
     [SerializeField] private Transform aimPosition;
-    [SerializeField] private int storageLimit;
     [SerializeField] private Transform storagedPlacement;
-    [SerializeField] private float damage;
     private Vector3 direction;
     private float timer;
     private DropBase[] storagedDrops;
-    void Awake()
+    private MiningToolSO data => Data as MiningToolSO;
+
+    public void Awake()
     {
-        storagedDrops = new DropBase[storageLimit];
+        stats[UpgradeType.ToolDamage] = data.Damage;
+        stats[UpgradeType.ToolCooldown] = data.CooldownTimer;
+        stats[UpgradeType.ToolMaxRange] = data.Range;
+
+        storagedDrops = new DropBase[data.StorageLimit];
     }
     private void HandleRotation(Transform t)
     {
@@ -40,13 +45,13 @@ public class MiningTool : ToolBase
         Ray hitRay = new Ray(aimPosition.position, direction);
         if (MainUseState)
         {
-            if (Physics.Raycast(hitRay, out RaycastHit hit, maxRange, destructable))
+            if (Physics.Raycast(hitRay, out RaycastHit hit, stats[UpgradeType.ToolMaxRange], destructable))
             {
                 if (hit.transform.TryGetComponent(out DestructableBase d))
                 {
-                    if (timer > cooldownTimer)
+                    if (timer > stats[UpgradeType.ToolCooldown])
                     {
-                        d.Destruct(damage);
+                        d.Destruct(stats[UpgradeType.ToolDamage]);
                         timer = 0;
                     }
                 }
@@ -56,7 +61,7 @@ public class MiningTool : ToolBase
         {
             if (AlternativeState)
             {
-                if (Physics.Raycast(hitRay, out RaycastHit hit, maxRange))
+                if (Physics.Raycast(hitRay, out RaycastHit hit, stats[UpgradeType.ToolMaxRange]))
                 {
                     if (hit.transform.TryGetComponent(out DropBase d))
                     {
@@ -66,7 +71,7 @@ public class MiningTool : ToolBase
                             {
                                 if (!d.IsCollected)
                                 {
-                                    d.Collect(storagedPlacement);
+                                    d.Collect(storagedPlacement, data.CollectAnimationTimer);
                                     storagedDrops[i] = d;
                                     break;
                                 }
@@ -78,10 +83,13 @@ public class MiningTool : ToolBase
         }
 
     }
-
+    public override void UpgradeSelf(UpgradeData upgradeData)
+    {
+        stats[upgradeData.Type] += upgradeData.Amount;
+    }
     void OnDrawGizmos()
     {
-        Gizmos.DrawRay(aimPosition.position, aimPosition.forward * maxRange);
+        Gizmos.DrawRay(aimPosition.position, aimPosition.forward * stats[UpgradeType.ToolMaxRange]);
     }
 
 }
