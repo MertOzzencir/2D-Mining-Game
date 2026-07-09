@@ -3,12 +3,18 @@ using UnityEngine;
 
 public abstract class ToolBase : MonoBehaviour
 {
+    public Transform VisualTransform;
+    public Transform AimPositionTransform;
     public ToolSO Data;
     public bool MainUseState { get; set; }
     public Dictionary<UpgradeType, float> stats = new();
 
     public bool AlternativeState { get; set; }
-    public abstract void UpdateUse();
+    public virtual void UpdateUse()
+    {
+        HandleRotation(VisualTransform);
+        HandleRotation(AimPositionTransform);
+    }
     public abstract void UpgradeSelf(UpgradeData upgradeData);
 
 
@@ -31,6 +37,18 @@ public abstract class ToolBase : MonoBehaviour
     {
         gameObject.SetActive(false);
         transform.parent = null;
+    }
+    public void HandleRotation(Transform t)
+    {
+        Plane plane = new Plane(Vector3.right, t.transform.position);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (plane.Raycast(ray, out float enter))
+        {
+            Vector3 hitPoint = ray.GetPoint(enter);
+            Vector3 direction = (hitPoint - t.position).normalized;
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            t.rotation = lookRotation;
+        }
     }
     public void OnEnable()
     {

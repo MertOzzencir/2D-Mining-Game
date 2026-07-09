@@ -8,6 +8,8 @@ public abstract class DestructableBase : MonoBehaviour
     [SerializeField] private ParticleSystem hitParticle;
 
     public float CurrentHealth { get; private set; }
+
+
     void Awake()
     {
         CurrentHealth = data.MaxHealth;

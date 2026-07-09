@@ -9,11 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0529a37bef329e4f9c0f15d90870f23, type: 3}
-  m_Name: MiningToolData
-  m_EditorClassIdentifier: Assembly-CSharp::MinigToolSO
-  Range: 3
-  CooldownTimer: 1
-  Damage: 1
-  StorageLimit: 10000
-  CollectAnimationTimer: 0.25
+  m_Script: {fileID: 11500000, guid: 419e3a71d1d39554484a6ab2010d3d22, type: 3}
+  m_Name: PlacementTool
+  m_EditorClassIdentifier: Assembly-CSharp::ToolSO
+  Range: 8
+  CooldownTimer: 0

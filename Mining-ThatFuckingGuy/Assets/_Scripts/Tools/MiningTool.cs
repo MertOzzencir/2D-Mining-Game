@@ -4,8 +4,7 @@ using UnityEngine;
 public class MiningTool : ToolBase
 {
     [SerializeField] private LayerMask destructable;
-    [SerializeField] private Transform visual;
-    [SerializeField] private Transform aimPosition;
+
     [SerializeField] private Transform storagedPlacement;
     private Vector3 direction;
     private float timer;
@@ -20,29 +19,17 @@ public class MiningTool : ToolBase
 
         storagedDrops = new DropBase[data.StorageLimit];
     }
-    private void HandleRotation(Transform t)
-    {
-        Plane plane = new Plane(Vector3.right, t.transform.position);
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (plane.Raycast(ray, out float enter))
-        {
-            Vector3 hitPoint = ray.GetPoint(enter);
-            //hitPoint.x = 0;
-            Vector3 direction = (hitPoint - t.position).normalized;
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            t.rotation = lookRotation;
-        }
-    }
+
     public override void UpdateUse()
     {
-        HandleRotation(visual);
-        HandleRotation(aimPosition);
+        base.UpdateUse();
+      
 
         timer += Time.deltaTime;
-        direction = aimPosition.forward;
+        direction = AimPositionTransform.forward;
         direction.x = 0;
         direction = direction.normalized;
-        Ray hitRay = new Ray(aimPosition.position, direction);
+        Ray hitRay = new Ray(AimPositionTransform.position, direction);
         if (MainUseState)
         {
             if (Physics.Raycast(hitRay, out RaycastHit hit, stats[UpgradeType.ToolMaxRange], destructable))
@@ -89,7 +76,7 @@ public class MiningTool : ToolBase
     }
     void OnDrawGizmos()
     {
-        Gizmos.DrawRay(aimPosition.position, aimPosition.forward * stats[UpgradeType.ToolMaxRange]);
+        Gizmos.DrawRay(AimPositionTransform.position, AimPositionTransform.forward * stats[UpgradeType.ToolMaxRange]);
     }
 
 }
