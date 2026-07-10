@@ -11,8 +11,9 @@ public class MiningTool : ToolBase
     private DropBase[] storagedDrops;
     private MiningToolSO data => Data as MiningToolSO;
 
-    public void Awake()
+    public override void Awake()
     {
+        base.Awake();
         stats[UpgradeType.ToolDamage] = data.Damage;
         stats[UpgradeType.ToolCooldown] = data.CooldownTimer;
         stats[UpgradeType.ToolMaxRange] = data.Range;
@@ -23,7 +24,7 @@ public class MiningTool : ToolBase
     public override void UpdateUse()
     {
         base.UpdateUse();
-      
+
 
         timer += Time.deltaTime;
         direction = AimPositionTransform.forward;

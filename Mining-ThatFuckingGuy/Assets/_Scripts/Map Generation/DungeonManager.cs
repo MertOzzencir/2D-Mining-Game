@@ -1,17 +1,17 @@
-using JetBrains.Annotations;
 using UnityEngine;
 
 public class DungeonManager : MonoBehaviour
 {
+    public static DungeonManager Instance;
     [SerializeField] private Texture2D dungeonMap;
     [SerializeField] private UndestructableBase unbreakablePrefab;
     [SerializeField] private DestructableSO destructableData;
     [SerializeField] private GameObject dropPrefab;
-    [SerializeField] private GameObject holder;
 
     private BlockData[,] blocks;
     void Awake()
     {
+        Instance = this;
         blocks = new BlockData[dungeonMap.width, dungeonMap.height];
         Debug.Log(blocks.Length);
         CreateDungeon();
@@ -47,6 +47,8 @@ public class DungeonManager : MonoBehaviour
         float zRandomOffset = Random.Range(-0.5f, 0.5f);
         float yRandomOffset = Random.Range(-0.5f, 0.5f);
         Instantiate(dropPrefab, breakableT.transform.position + new Vector3(0, yRandomOffset, zRandomOffset), Quaternion.identity);
+
+        blocks[(int)breakableT.transform.position.z - (int)transform.position.z, (int)breakableT.transform.position.y - (int)transform.position.y].IsEmpty = true;
         breakableT.OnDeath -= HandleDeathDestructable;
     }
     private void GetPixelFromMap(Color mapColor, Vector3 spawnPosition, int zIndex, int yIndex, Vector3 worldPos)
@@ -96,7 +98,7 @@ public class DungeonManager : MonoBehaviour
                Mathf.Abs(a.g - b.g) < tolerance &&
                Mathf.Abs(a.b - b.b) < tolerance;
     }
-    public BlockData GetBlockFromWorldPosition(Vector3 pos)
+    public BlockData GetBlockFromWorldPosition(Vector3 pos, out bool isEmpty)
     {
         Vector3 localPos = pos - transform.position;
         float zPercent = localPos.z / dungeonMap.width;
@@ -107,8 +109,16 @@ public class DungeonManager : MonoBehaviour
         int y = Mathf.RoundToInt(yPercent * dungeonMap.height);
         z = Mathf.Clamp(z, 0, blocks.GetLength(0) - 1);
         y = Mathf.Clamp(y, 0, blocks.GetLength(1) - 1);
-        blocks[z, y].DebugSelf();
+        //blocks[z, y].DebugSelf();
+        isEmpty = blocks[z, y].IsEmpty;
         return blocks[z, y];
+    }
+    public bool GetEmptyBlockFromWorldPosition(BlockData currentCheckBlock, int zIndex, int yIndex)
+    {
+        int z = currentCheckBlock.ZIndex + zIndex;
+        int y = currentCheckBlock.YIndex + yIndex;
+        if (z >= blocks.GetLength(0) || y >= blocks.GetLength(1) || z < 0 || y < 0) return false;
+        return blocks[currentCheckBlock.ZIndex + zIndex, currentCheckBlock.YIndex + yIndex].IsEmpty;
     }
     [ContextMenu("Debug")]
     public void DebugBlocks()

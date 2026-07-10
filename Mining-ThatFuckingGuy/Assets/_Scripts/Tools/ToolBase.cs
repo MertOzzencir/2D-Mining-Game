@@ -10,6 +10,10 @@ public abstract class ToolBase : MonoBehaviour
     public Dictionary<UpgradeType, float> stats = new();
 
     public bool AlternativeState { get; set; }
+    public virtual void Awake()
+    {
+
+    }
     public virtual void UpdateUse()
     {
         HandleRotation(VisualTransform);
@@ -25,6 +29,10 @@ public abstract class ToolBase : MonoBehaviour
     public virtual void AlternativeUse(bool state)
     {
         AlternativeState = state;
+    }
+    public virtual void InteractUse()
+    {
+
     }
     public virtual void Equip(Transform newP)
     {
@@ -50,17 +58,19 @@ public abstract class ToolBase : MonoBehaviour
             t.rotation = lookRotation;
         }
     }
-    public void OnEnable()
+    public virtual void OnEnable()
     {
         InputManager.OnMouseLeft += MainUse;
         InputManager.OnMouseRight += AlternativeUse;
+        InputManager.OnInteract += InteractUse;
     }
-    public void OnDisable()
+    public virtual void OnDisable()
     {
         MainUseState = false;
         AlternativeState = false;
         InputManager.OnMouseLeft -= MainUse;
         InputManager.OnMouseRight -= AlternativeUse;
+        InputManager.OnInteract -= InteractUse;
     }
 
 }

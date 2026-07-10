@@ -47,7 +47,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &149344441076438684
 Transform:
   m_ObjectHideFlags: 0
@@ -80,6 +80,8 @@ MonoBehaviour:
   VisualTransform: {fileID: 2528847961417440690}
   AimPositionTransform: {fileID: 7558072100119155095}
   Data: {fileID: 11400000, guid: 98a2048b791ba5b41840ee39c74d2620, type: 2}
+  thresholdPrefab: {fileID: 0}
+  ballPrefab: {fileID: 2295367652145025045, guid: 5e40b00f2a4f43140ba829f2dd429025, type: 3}
 --- !u!1 &7755753695448034746
 GameObject:
   m_ObjectHideFlags: 0
@@ -108,7 +110,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.48139, z: 2.9254}
+  m_LocalScale: {x: 0.56563, y: 0.27228862, z: 1.6546941}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 149344441076438684}

@@ -6,7 +6,6 @@ public class ToolController : MonoBehaviour
 
     [SerializeField] private float attackDamage;
     [SerializeField] private Transform toolRotation;
-    [SerializeField] private Transform toolVisual;
     [SerializeField] private ToolBase[] tools;
 
     private ToolBase CurrentTool;

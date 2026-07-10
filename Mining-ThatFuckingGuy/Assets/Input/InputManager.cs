@@ -8,6 +8,7 @@ public class InputManager : MonoBehaviour
     public static event Action<bool> OnMouseRight;
     public static event Action<int> OnNumbers;
     public static event Action OnJump;
+    public static event Action OnInteract;
     private InputActionBase baseInput;
 
 
@@ -67,6 +68,18 @@ public class InputManager : MonoBehaviour
         }
         OnNumbers?.Invoke(returned);
     }
+
+
+    private void Interact(InputAction.CallbackContext context)
+    {
+        OnInteract?.Invoke();
+    }
+
+    private void MouseRight(InputAction.CallbackContext context)
+    {
+        bool isActive = context.phase == InputActionPhase.Performed ? true : false;
+        OnMouseRight?.Invoke(isActive);
+    }
     void OnEnable()
     {
         baseInput.Player.Numbers.performed += Numbers;
@@ -75,14 +88,8 @@ public class InputManager : MonoBehaviour
         baseInput.Player.MouseRight.performed += MouseRight;
         baseInput.Player.MouseRight.canceled += MouseRight;
         baseInput.Player.Jump.performed += SpaceButton;
+        baseInput.Player.Interact.performed += Interact;
     }
-
-    private void MouseRight(InputAction.CallbackContext context)
-    {
-        bool isActive = context.phase == InputActionPhase.Performed ? true : false;
-        OnMouseRight?.Invoke(isActive);
-    }
-
     void OnDisable()
     {
         baseInput.Player.Numbers.performed -= Numbers;
@@ -91,6 +98,7 @@ public class InputManager : MonoBehaviour
         baseInput.Player.MouseRight.performed += MouseRight;
         baseInput.Player.MouseRight.canceled += MouseRight;
         baseInput.Player.Jump.performed -= SpaceButton;
+        baseInput.Player.Interact.performed -= Interact;
     }
 
 
