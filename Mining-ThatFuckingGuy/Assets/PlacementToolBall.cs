@@ -3,50 +3,47 @@ using UnityEngine;
 public class PlacementToolBall : MonoBehaviour
 {
     [SerializeField] private BallSO data;
-    Vector3[] rayDirection;
+    [SerializeField] private bool useSecondVersion;
     private Vector3 currentDirection;
-    void Awake()
-    {
-        rayDirection = new Vector3[8];
-        rayDirection[0] = transform.forward;
-        rayDirection[1] = -transform.forward;
-        rayDirection[2] = transform.up;
-        rayDirection[3] = -transform.up;
-        rayDirection[4] = transform.forward + transform.up;
-        rayDirection[5] = transform.forward - transform.up;
-        rayDirection[6] = -transform.forward + transform.up;
-        rayDirection[7] = -transform.forward - transform.up;
-    }
+
+
+
     void Update()
     {
-        foreach (var a in rayDirection)
+        float moveDistance = data.Speed * Time.deltaTime;
+        float checkDistance = moveDistance + 0.05f;
+
+        if (Physics.SphereCast(transform.position, data.BallRadius, currentDirection.normalized, out RaycastHit hit, checkDistance, data.LayerMask))
         {
-            Ray ray = new Ray(transform.position, a.normalized);
-            if (Physics.Raycast(ray, out RaycastHit hit, data.RayDistance, data.LayerMask))
+            bool changeDirection = false;
+            if (hit.transform.TryGetComponent(out DestructableBase destruct))
             {
-                currentDirection = Vector3.Reflect(a.normalized, hit.normal);
-                currentDirection.x = 0;
-                float randomAngle = Random.Range(-data.MaxBounceRandomAngle, data.MaxBounceRandomAngle);
-                currentDirection = Quaternion.AngleAxis(randomAngle, Vector3.right) * currentDirection;
-                if (hit.transform.TryGetComponent(out DestructableBase destruct))
-                {
-                    destruct.Destruct(data.Damage);
-                }
-                break;
+                destruct.Destruct(data.Damage, out changeDirection);
             }
+
+            if (changeDirection && useSecondVersion) return;
+
+            currentDirection = Vector3.Reflect(currentDirection.normalized, hit.normal);
+            currentDirection.x = 0;
+
+            float randomAngle = Random.Range(-data.MaxBounceRandomAngle, data.MaxBounceRandomAngle);
+            currentDirection = Quaternion.AngleAxis(randomAngle, Vector3.right) * currentDirection;
+
+
         }
-        transform.position += currentDirection * data.Speed * Time.deltaTime;
+
+        transform.position += currentDirection.normalized * moveDistance;
     }
-    void OnDrawGizmos()
-    {
-        if (rayDirection == null) return;
-        foreach (var a in rayDirection)
-        {
-            Gizmos.DrawRay(transform.position, a.normalized * data.RayDistance);
-        }
-    }
+
+
     public void SetDirection(Vector3 direction)
     {
         currentDirection = direction;
     }
+    void OnDrawGizmos()
+    {
+        Gizmos.DrawRay(transform.position, currentDirection.normalized * data.RayDistance);
+        Gizmos.DrawWireSphere(transform.position, data.BallRadius);
+    }
+
 }

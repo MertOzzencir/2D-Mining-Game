@@ -2,17 +2,22 @@ using UnityEngine;
 
 public class PlacementTool : ToolBase
 {
-    [SerializeField] private GameObject thresholdPrefab;
+    [SerializeField] private GameObject cornerPrefab;
+    [SerializeField] private GameObject indicatorPrefab;
     [SerializeField] private PlacementToolBall ballPrefab;
     DungeonManager dungeonManager;
     private int rotationIndex;
     private BlockData current;
     private Transform pivotTransform;
+    private GameObject corner;
+    private GameObject indicator;
     public override void Awake()
     {
         base.Awake();
+        corner = Instantiate(cornerPrefab);
+        indicator = Instantiate(indicatorPrefab);
         dungeonManager = DungeonManager.Instance;
-        pivotTransform = thresholdPrefab.transform.GetChild(0).transform;
+        pivotTransform = corner.transform.GetChild(0).transform;
     }
     public override void UpdateUse()
     {
@@ -29,7 +34,10 @@ public class PlacementTool : ToolBase
                 {
                     current = checking;
                     if (isEmpty)
-                        thresholdPrefab.transform.position = current.WorldPosition;
+                    {
+                        corner.transform.position = current.WorldPosition;
+                        indicator.transform.position = current.WorldPosition;
+                    }
                     bool success = false;
                     int repeat = 0;
                     while (!success)
@@ -64,15 +72,21 @@ public class PlacementTool : ToolBase
             a.SetDirection(AimPositionTransform.forward);
             return;
         }
-        Instantiate(thresholdPrefab, thresholdPrefab.transform.position, thresholdPrefab.transform.rotation);
+        Instantiate(corner, corner.transform.position, corner.transform.rotation);
     }
     public override void AlternativeUse(bool state)
     {
         base.AlternativeUse(state);
         if (state)
-            thresholdPrefab.SetActive(true);
+        {
+            corner.SetActive(true);
+            indicator.SetActive(true);
+        }
         else
-            thresholdPrefab.SetActive(false);
+        {
+            indicator.SetActive(false);
+            corner.SetActive(false);
+        }
     }
     public override void InteractUse()
     {
@@ -147,8 +161,11 @@ public class PlacementTool : ToolBase
     public override void OnDisable()
     {
         base.OnDisable();
-        if (thresholdPrefab != null)
-            thresholdPrefab.SetActive(false);
+        if (corner != null)
+        {
+            corner.SetActive(false);
+            indicator.SetActive(false);
+        }
     }
 
 }

@@ -7,21 +7,28 @@ public class DropBase : MonoBehaviour
 
     [SerializeField] private DropSO data;
     public bool IsCollected { get; private set; }
+    public int IndexInStorage { get; set; }
     private Rigidbody rb;
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
     }
-    public void Collect(Transform storagedPlaced, float animationDuration)
+    public void Collect()
     {
         if (!IsCollected)
         {
-            rb.isKinematic = true;
-            StartCoroutine(CollectAnimation(storagedPlaced, transform.position, animationDuration));
             IsCollected = true;
         }
     }
-
+    public void AnimationLogic()
+    {
+        rb.isKinematic = true;
+    }
+    public void UnCollect()
+    {
+        IsCollected = false;
+        rb.isKinematic = false;
+    }
     private IEnumerator CollectAnimation(Transform target, Vector3 startPosition, float animationDuration)
     {
 

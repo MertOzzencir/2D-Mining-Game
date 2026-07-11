@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0529a37bef329e4f9c0f15d90870f23, type: 3}
   m_Name: MiningToolData
   m_EditorClassIdentifier: Assembly-CSharp::MinigToolSO
-  Range: 15
+  Range: 3
   CooldownTimer: 0
-  Damage: 5
+  Damage: 1
   StorageLimit: 10000
-  CollectAnimationTimer: 0.25
+  CollectAnimationTimer: 0.2
+  ConeAngle: 30

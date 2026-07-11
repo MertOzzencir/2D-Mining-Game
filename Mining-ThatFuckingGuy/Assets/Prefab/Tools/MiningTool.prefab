@@ -52,6 +52,9 @@ MonoBehaviour:
   destructable:
     serializedVersion: 2
     m_Bits: 191
+  dropLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
   storagedPlacement: {fileID: 8279215610294820162}
 --- !u!1 &1093225786174770747
 GameObject:
@@ -200,7 +203,7 @@ Transform:
   m_GameObject: {fileID: 6459852360495672332}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.065999985, y: 0, z: 1.16}
+  m_LocalPosition: {x: 0, y: 0.1, z: 1.315}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

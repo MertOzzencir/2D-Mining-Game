@@ -6,4 +6,5 @@ public class MiningToolSO : ToolSO
     public float Damage;
     public int StorageLimit;
     public float CollectAnimationTimer;
+    public float ConeAngle;
 }

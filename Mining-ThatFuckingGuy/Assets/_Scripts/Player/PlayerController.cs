@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AnimationCurve jumpCurve;
     [Header("Visual")]
     [SerializeField] private Transform visual;
+    [SerializeField] private float timeAirTimer;
 
     private const float SKIN = 0.01f;
 
@@ -25,7 +26,7 @@ public class PlayerController : MonoBehaviour
     private bool jumpState;
     private Vector3 targetJumpPosition;
     private Vector3 startJumpPosition;
-
+    private float lastTimeGrounded;
     void Awake()
     {
         c = GetComponent<CapsuleCollider>();
@@ -39,6 +40,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Vector2 input = inputM.MovementVectorNormalized();
+        if (IsGrounded()) lastTimeGrounded = Time.time;
         HandleVertical();
         HandleHorizontal(input);
         HandleVisual(input);
@@ -81,6 +83,7 @@ public class PlayerController : MonoBehaviour
             }
             return;
         }
+
         Debug.Log("Falling");
         verticalVelocity += Physics.gravity.y / gravityDecreaseMultiplier * Time.deltaTime * gravityVelocitySpeed;
         verticalVelocity = Mathf.Max(verticalVelocity, gravityTerminalVelocity);
@@ -135,7 +138,6 @@ public class PlayerController : MonoBehaviour
         Vector3 center = transform.position + c.center;
         Vector3 point1 = center + Vector3.up * halfHeight;
         Vector3 point2 = center - Vector3.up * halfHeight;
-
         return Physics.CapsuleCast(point1, point2, radius, Vector3.down, groundCheckDistance);
     }
 
@@ -147,7 +149,7 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        if (IsGrounded())
+        if (IsGrounded() || Time.time - lastTimeGrounded <= timeAirTimer)
         {
             verticalVelocity = CalculateJumpPower();
             jumpState = true;

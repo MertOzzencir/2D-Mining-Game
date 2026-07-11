@@ -14,12 +14,14 @@ public abstract class DestructableBase : MonoBehaviour
     {
         CurrentHealth = data.MaxHealth;
     }
-    public virtual void Destruct(float damage)
+    public virtual void Destruct(float damage, out bool isDead)
     {
-        CheckHealth(damage);
+        isDead = false;
+        CheckHealth(damage, out isDead);
     }
-    public virtual void CheckHealth(float damage)
+    public virtual void CheckHealth(float damage, out bool isDead)
     {
+        isDead = false;
         CurrentHealth -= damage;
         hitParticle.gameObject.SetActive(true);
         hitParticle.Play();
@@ -29,7 +31,7 @@ public abstract class DestructableBase : MonoBehaviour
             var main = hitParticle.main;
             main.stopAction = ParticleSystemStopAction.Destroy;
             hitParticle.gameObject.transform.parent = null;
-
+            isDead = true;
             OnDeath?.Invoke(this);
             Destroy(gameObject);
         }

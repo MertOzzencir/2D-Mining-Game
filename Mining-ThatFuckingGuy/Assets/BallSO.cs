@@ -8,4 +8,5 @@ public class BallSO : ScriptableObject
     public float Speed;
     public float MaxBounceRandomAngle;
     public int Damage;
+    public float BallRadius;
 }
