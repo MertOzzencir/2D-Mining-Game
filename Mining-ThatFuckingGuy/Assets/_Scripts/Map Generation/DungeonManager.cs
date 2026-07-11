@@ -41,14 +41,19 @@ public class DungeonManager : MonoBehaviour
                 GetPixelFromMap(pixelColor, spawnPosition, w, h, spawnPosition);
             }
         }
+        for (int h = 0; h < height; h++)
+            for (int w = 0; w < width; w++)
+                blocks[w, h].CalculateCorners(this);
     }
     private void HandleDeathDestructable(DestructableBase breakableT)
     {
         float zRandomOffset = Random.Range(-0.5f, 0.5f);
         float yRandomOffset = Random.Range(-0.5f, 0.5f);
         Instantiate(dropPrefab, breakableT.transform.position + new Vector3(0, yRandomOffset, zRandomOffset), Quaternion.identity);
-
-        blocks[(int)breakableT.transform.position.z - (int)transform.position.z, (int)breakableT.transform.position.y - (int)transform.position.y].IsEmpty = true;
+        BlockData ownData = blocks[(int)breakableT.transform.position.z - (int)transform.position.z, (int)breakableT.transform.position.y - (int)transform.position.y];
+        ownData.IsEmpty = true;
+        ownData.CalculateCorners(this);
+        RecalculateNeighborCorners(ownData);
         breakableT.OnDeath -= HandleDeathDestructable;
     }
     private void GetPixelFromMap(Color mapColor, Vector3 spawnPosition, int zIndex, int yIndex, Vector3 worldPos)
@@ -56,7 +61,7 @@ public class DungeonManager : MonoBehaviour
         switch (GetTypeFromPixel(mapColor))
         {
             case ObjectType.FreeSpace:
-                blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, true, worldPos);
+                blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, true, worldPos, this);
                 return;
             case ObjectType.Undestructable:
                 int randomRotation2 = Random.Range(0, 4);
@@ -79,7 +84,7 @@ public class DungeonManager : MonoBehaviour
                 g2.OnDeath += HandleDeathDestructable;
                 break;
         }
-        blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos);
+        blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos, this);
     }
     private ObjectType GetTypeFromPixel(Color c)
     {
@@ -119,6 +124,21 @@ public class DungeonManager : MonoBehaviour
         int y = currentCheckBlock.YIndex + yIndex;
         if (z >= blocks.GetLength(0) || y >= blocks.GetLength(1) || z < 0 || y < 0) return false;
         return blocks[currentCheckBlock.ZIndex + zIndex, currentCheckBlock.YIndex + yIndex].IsEmpty;
+    }
+    private static readonly (int z, int y)[] NeighborOffsets = { (1, 0), (0, -1), (-1, 0), (0, 1) };
+    private void RecalculateNeighborCorners(BlockData block)
+    {
+        foreach (var (dz, dy) in NeighborOffsets)
+        {
+            int nz = block.ZIndex + dz;
+            int ny = block.YIndex + dy;
+            if (nz < 0 || ny < 0 || nz >= blocks.GetLength(0) || ny >= blocks.GetLength(1))
+                continue;
+
+            BlockData neighbor = blocks[nz, ny];
+            if (neighbor != null)
+                neighbor.CalculateCorners(this);
+        }
     }
     [ContextMenu("Debug")]
     public void DebugBlocks()

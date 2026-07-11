@@ -7,7 +7,7 @@ public class PlacementTool : ToolBase
     [SerializeField] private PlacementToolBall ballPrefab;
     DungeonManager dungeonManager;
     private int rotationIndex;
-    private BlockData current;
+    private BlockData currentBlock;
     private Transform pivotTransform;
     private GameObject corner;
     private GameObject indicator;
@@ -30,13 +30,13 @@ public class PlacementTool : ToolBase
             {
                 Vector3 hitPoint = ray.GetPoint(enter);
                 BlockData checking = dungeonManager.GetBlockFromWorldPosition(hitPoint, out bool isEmpty);
-                if (checking != current)
+                if (checking != currentBlock)
                 {
-                    current = checking;
+                    currentBlock = checking;
                     if (isEmpty)
                     {
-                        corner.transform.position = current.WorldPosition;
-                        indicator.transform.position = current.WorldPosition;
+                        corner.transform.position = currentBlock.WorldPosition;
+                        indicator.transform.position = currentBlock.WorldPosition;
                     }
                     bool success = false;
                     int repeat = 0;
@@ -57,7 +57,7 @@ public class PlacementTool : ToolBase
             }
         }
         else
-            current = null;
+            currentBlock = null;
     }
     public override void UpgradeSelf(UpgradeData upgradeData)
     {
@@ -68,11 +68,24 @@ public class PlacementTool : ToolBase
         base.MainUse(state);
         if (!AlternativeState)
         {
+
             PlacementToolBall a = Instantiate(ballPrefab, AimPositionTransform.position, Quaternion.identity);
             a.SetDirection(AimPositionTransform.forward);
             return;
         }
-        Instantiate(corner, corner.transform.position, corner.transform.rotation);
+        if (currentBlock.CornerIndex[rotationIndex] == -1)
+        {
+            currentBlock.CornerIndex[rotationIndex] = 1;
+            Instantiate(corner, corner.transform.position, corner.transform.rotation);
+            // bool success = false;
+            // int repeat = 0;
+            // while (!success)
+            // {
+            //     repeat++;
+            //     RotationIncrease(out success);
+            //     if (repeat > 4) break;
+            // }
+        }
     }
     public override void AlternativeUse(bool state)
     {
@@ -122,28 +135,28 @@ public class PlacementTool : ToolBase
         switch (rotationIndex)
         {
             case 0:
-                if (dungeonManager.GetEmptyBlockFromWorldPosition(current, 1, 0))
+                if (dungeonManager.GetEmptyBlockFromWorldPosition(currentBlock, 1, 0) && currentBlock.CornerIndex[rotationIndex] == -1)
                 {
                     pivotTransform.transform.localEulerAngles = new Vector3(0, 0, 0);
                     success = true;
                 }
                 break;
             case 1:
-                if (dungeonManager.GetEmptyBlockFromWorldPosition(current, 0, -1))
+                if (dungeonManager.GetEmptyBlockFromWorldPosition(currentBlock, 0, -1) && currentBlock.CornerIndex[rotationIndex] == -1)
                 {
                     pivotTransform.transform.localEulerAngles = new Vector3(90, 0, 0);
                     success = true;
                 }
                 break;
             case 2:
-                if (dungeonManager.GetEmptyBlockFromWorldPosition(current, -1, 0))
+                if (dungeonManager.GetEmptyBlockFromWorldPosition(currentBlock, -1, 0) && currentBlock.CornerIndex[rotationIndex] == -1)
                 {
                     pivotTransform.transform.localEulerAngles = new Vector3(180, 0, 0);
                     success = true;
                 }
                 break;
             case 3:
-                if (dungeonManager.GetEmptyBlockFromWorldPosition(current, 0, 1))
+                if (dungeonManager.GetEmptyBlockFromWorldPosition(currentBlock, 0, 1) && currentBlock.CornerIndex[rotationIndex] == -1)
                 {
                     pivotTransform.transform.localEulerAngles = new Vector3(270, 0, 0);
                     success = true;
@@ -161,7 +174,7 @@ public class PlacementTool : ToolBase
     public override void OnDisable()
     {
         base.OnDisable();
-        if (corner != null)
+        if (corner != null && indicator != null)
         {
             corner.SetActive(false);
             indicator.SetActive(false);
