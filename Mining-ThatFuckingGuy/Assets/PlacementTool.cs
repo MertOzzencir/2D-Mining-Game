@@ -66,6 +66,8 @@ public class PlacementTool : ToolBase
     public override void MainUse(bool state)
     {
         base.MainUse(state);
+        Debug.Log("count");
+        if (!state) return;
         if (!AlternativeState)
         {
 
@@ -77,14 +79,14 @@ public class PlacementTool : ToolBase
         {
             currentBlock.CornerIndex[rotationIndex] = 1;
             Instantiate(corner, corner.transform.position, corner.transform.rotation);
-            // bool success = false;
-            // int repeat = 0;
-            // while (!success)
-            // {
-            //     repeat++;
-            //     RotationIncrease(out success);
-            //     if (repeat > 4) break;
-            // }
+            bool success = false;
+            int repeat = 0;
+            while (!success)
+            {
+                repeat++;
+                RotationIncrease(out success);
+                if (repeat > 4) break;
+            }
         }
     }
     public override void AlternativeUse(bool state)
