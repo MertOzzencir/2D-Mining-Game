@@ -169,7 +169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NormalDestructable
   data: {fileID: 11400000, guid: f11623ef2323df641ade597d9d76fb7a, type: 2}
-  hitParticle: {fileID: 7992857694958864153}
+  hitParticle: {fileID: 1846073726875582058, guid: 6bedd7de1716e7b42a02891ec18d05ba, type: 3}
 --- !u!1001 &4388717607973997461
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -230,10 +230,5 @@ PrefabInstance:
 --- !u!4 &4776348765914863264 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9128555153441545525, guid: 0283ba410f72feb40925f26e3d68e685, type: 3}
-  m_PrefabInstance: {fileID: 4388717607973997461}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &7992857694958864153 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 5911975962988219532, guid: 0283ba410f72feb40925f26e3d68e685, type: 3}
   m_PrefabInstance: {fileID: 4388717607973997461}
   m_PrefabAsset: {fileID: 0}

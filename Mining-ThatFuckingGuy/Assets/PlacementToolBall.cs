@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class PlacementToolBall : MonoBehaviour
@@ -7,6 +8,7 @@ public class PlacementToolBall : MonoBehaviour
     private Vector3 currentDirection;
 
 
+    private static PlayerController player => FindAnyObjectByType<PlayerController>();
 
     void Update()
     {
@@ -18,7 +20,7 @@ public class PlacementToolBall : MonoBehaviour
             bool changeDirection = false;
             if (hit.transform.TryGetComponent(out DestructableBase destruct))
             {
-                destruct.Destruct(data.Damage, out changeDirection);
+                destruct.Destruct(data.Damage, out changeDirection, player.transform);
             }
 
             if (changeDirection && useSecondVersion) return;

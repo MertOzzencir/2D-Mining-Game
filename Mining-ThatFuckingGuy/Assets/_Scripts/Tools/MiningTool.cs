@@ -43,7 +43,7 @@ public class MiningTool : ToolBase
                 {
                     if (timer > stats[UpgradeType.ToolCooldown])
                     {
-                        d.Destruct(stats[UpgradeType.ToolDamage], out _);
+                        d.Destruct(stats[UpgradeType.ToolDamage], out _,AimPositionTransform);
                         timer = 0;
                     }
                 }
