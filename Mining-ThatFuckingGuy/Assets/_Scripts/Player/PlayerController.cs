@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     [Header("Visual")]
     [SerializeField] private Transform visual;
     [SerializeField] private float timeAirTimer;
+    [SerializeField] private Backpack backpack;
 
     private const float SKIN = 0.01f;
 
@@ -103,7 +104,7 @@ public class PlayerController : MonoBehaviour
 
         float allowed = SweepMove(direction, desired, out _);
         horizontalVelocity = allowed;
-        transform.position += direction * allowed;
+        transform.position += direction * allowed * backpack.GetSpeedReduceMultiplier();
     }
 
 
@@ -156,6 +157,10 @@ public class PlayerController : MonoBehaviour
             targetJumpPosition = transform.position + Vector3.up * jumpHeight;
             startJumpPosition = transform.position;
         }
+    }
+    public Backpack GetBackpack()
+    {
+        return backpack;
     }
 
     void OnEnable() { InputManager.OnJump += Jump; }

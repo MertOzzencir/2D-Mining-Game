@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8127106788616625008}
   - component: {fileID: 1846073726875582058}
   m_Layer: 0
-  m_Name: DestructableRealParticleModel
+  m_Name: DirtParticleVFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -129,3 +129,4 @@ MonoBehaviour:
     m_RotationOrder: 4
   duration: 0.6
   sCurveHeight: 3
+  scaleMultiplierMax: 2.5

@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DestructableSO
   Prefab: {fileID: 5426807712664186562, guid: f31019d15278f8a4f8cf1a2bed7e5fb7, type: 3}
   MaxHealth: 5
+  DirtDropAmountPerDamage: 1
+  DirtParticleVFX: {fileID: 1846073726875582058, guid: c8ebcd58cde259f4ead7a835f81d69e6, type: 3}

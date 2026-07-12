@@ -14,18 +14,23 @@ public abstract class DestructableBase : MonoBehaviour
     {
         CurrentHealth = data.MaxHealth;
     }
-    public virtual void Destruct(float damage, out bool isDead, Transform dirtTarget)
+    public virtual void Destruct(float damage, out bool isDead, Backpack dirtTarget)
     {
         isDead = false;
         CheckHealth(damage, out isDead, dirtTarget);
     }
-    public virtual void CheckHealth(float damage, out bool isDead, Transform dirtTarget)
+    public virtual void CheckHealth(float damage, out bool isDead, Backpack dirtTarget)
     {
         isDead = false;
+        if (dirtTarget.IsEmpty())
+        {
+
+            ParticleBase p = Instantiate(data.DirtParticleVFX);
+            p.PlayAnimation(transform.position, dirtTarget.transform, damage >= CurrentHealth ? CurrentHealth : damage);
+
+        }
         CurrentHealth -= damage;
-        hitParticle.gameObject.SetActive(true);
-        ParticleBase p = Instantiate(hitParticle);
-        p.PlayAnimation(transform.position, dirtTarget);
+
 
         if (CurrentHealth <= 0)
         {
@@ -35,6 +40,7 @@ public abstract class DestructableBase : MonoBehaviour
         }
 
     }
+
     public void OnSpawned()
     {
         int randomRotation = UnityEngine.Random.Range(0, 4);

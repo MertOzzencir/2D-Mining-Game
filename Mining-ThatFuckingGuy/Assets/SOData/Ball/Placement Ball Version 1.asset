@@ -17,5 +17,6 @@ MonoBehaviour:
     m_Bits: 183
   RayDistance: 0.28
   Speed: 12
-  MaxBounceRandomAngle: 0
-  Damage: 5
+  MaxBounceRandomAngle: 12
+  Damage: 1
+  BallRadius: 0.25

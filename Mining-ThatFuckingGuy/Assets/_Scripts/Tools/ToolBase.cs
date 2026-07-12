@@ -5,6 +5,7 @@ public abstract class ToolBase : MonoBehaviour
 {
     public Transform VisualTransform;
     public Transform AimPositionTransform;
+    public PlayerController Player { get; set; }
     public ToolSO Data;
     public bool MainUseState { get; set; }
     public Dictionary<UpgradeType, float> stats = new();
@@ -12,7 +13,7 @@ public abstract class ToolBase : MonoBehaviour
     public bool AlternativeState { get; set; }
     public virtual void Awake()
     {
-
+        Player = FindAnyObjectByType<PlayerController>();
     }
     public virtual void UpdateUse()
     {

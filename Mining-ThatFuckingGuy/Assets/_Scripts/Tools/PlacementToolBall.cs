@@ -20,7 +20,7 @@ public class PlacementToolBall : MonoBehaviour
             bool changeDirection = false;
             if (hit.transform.TryGetComponent(out DestructableBase destruct))
             {
-                destruct.Destruct(data.Damage, out changeDirection, player.transform);
+                destruct.Destruct(data.Damage, out changeDirection, player.GetBackpack());
             }
 
             if (changeDirection && useSecondVersion) return;

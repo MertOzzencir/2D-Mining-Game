@@ -140,6 +140,10 @@ public class DungeonManager : MonoBehaviour
                 neighbor.CalculateCorners(this);
         }
     }
+    public int DungeonHeight()
+    {
+        return dungeonMap.height;
+    }
     [ContextMenu("Debug")]
     public void DebugBlocks()
     {
