@@ -1,8 +1,14 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.Cinemachine;
+using Unity.VisualScripting;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private CinemachineCamera cameraMain;
     [SerializeField] private LayerMask generalCollider;
     [SerializeField] private float speed;
     [Header("Gravity")]
@@ -18,6 +24,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float timeAirTimer;
     [SerializeField] private Backpack backpack;
 
+    public static DungeonManager CurrentDungeon;
     private const float SKIN = 0.01f;
 
     private InputManager inputM;
@@ -28,15 +35,14 @@ public class PlayerController : MonoBehaviour
     private Vector3 targetJumpPosition;
     private Vector3 startJumpPosition;
     private float lastTimeGrounded;
+    private PlayerAnimationController animationController;
     void Awake()
     {
+        inputM = FindAnyObjectByType<InputManager>();
         c = GetComponent<CapsuleCollider>();
+        animationController = GetComponent<PlayerAnimationController>();
     }
 
-    void Start()
-    {
-        inputM = FindAnyObjectByType<InputManager>();
-    }
 
     void Update()
     {
@@ -162,7 +168,46 @@ public class PlayerController : MonoBehaviour
     {
         return backpack;
     }
+    public Transform GetVisual()
+    {
+        return visual;
+    }
+    public CinemachineCamera GetCamera()
+    {
+        return cameraMain;
+    }
+    public void DisableRequests()
+    {
+        animationController.BeforeDisable();
+    }
+    public void EmptyAllBackpackDirt(RobotInside robotStoraged)
+    {
+        if (backpack.CurrentDirtAmount() <= 0) return;
 
-    void OnEnable() { InputManager.OnJump += Jump; }
-    void OnDisable() { InputManager.OnJump -= Jump; }
+        List<ParticleBase> particlesCopy = new List<ParticleBase>(backpack.GetParticles());
+        float averageDirtAmount = backpack.CurrentDirtAmount() / (float)backpack.GetParticles().Count;
+
+        backpack.ResetDirtInStoraged();
+        backpack.ResetParticles();
+        StartCoroutine(EmptyDirtAnimation(particlesCopy, robotStoraged.transform, averageDirtAmount, robotStoraged.SetDirtStorage));
+    }
+    IEnumerator EmptyDirtAnimation(List<ParticleBase> particlesCopy, Transform robotStoraged, float avarageDirtAmount, Action<float, ParticleBase> Invoke)
+    {
+        foreach (var a in particlesCopy)
+        {
+            a.transform.parent = null;
+            a.gameObject.SetActive(true);
+            a.PlayAnimation(backpack.transform.position, robotStoraged.transform, avarageDirtAmount, Invoke);
+            yield return new WaitForFixedUpdate();
+        }
+    }
+    void OnEnable()
+    {
+        animationController.enabled = true;
+        InputManager.OnJump += Jump;
+    }
+    void OnDisable()
+    {
+        InputManager.OnJump -= Jump;
+    }
 }

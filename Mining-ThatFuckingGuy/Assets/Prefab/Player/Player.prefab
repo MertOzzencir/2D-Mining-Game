@@ -861,7 +861,7 @@ GameObject:
   - component: {fileID: 4885118150228255753}
   - component: {fileID: 2466430863986481655}
   - component: {fileID: 1027416439506496355}
-  - component: {fileID: 6743175475704336380}
+  - component: {fileID: 7288287861024497346}
   m_Layer: 3
   m_Name: Backpack
   m_TagString: Untagged
@@ -941,7 +941,7 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6743175475704336380
+--- !u!114 &7288287861024497346
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -953,7 +953,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed865055ad5feca429462bb152cd92ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Backpack
-  maxDirtCapacity: 2000
+  maxDirtCapacity: 200
   speedRangeBySpeedReduceMuliplier: {x: 1, y: 0.5}
 --- !u!1 &2212899657591836197
 GameObject:
@@ -1061,9 +1061,10 @@ GameObject:
   m_Component:
   - component: {fileID: 5873723227315251399}
   - component: {fileID: 2151883896799032673}
+  - component: {fileID: 5887335577372050686}
   - component: {fileID: 1051801087030394496}
   - component: {fileID: 7187778392589648569}
-  - component: {fileID: 6712381545972431529}
+  - component: {fileID: 3490438814794844547}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -1102,7 +1103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   generalCollider:
     serializedVersion: 2
-    m_Bits: 191
+    m_Bits: 1215
   speed: 7
   gravityDecreaseMultiplier: 4
   gravityVelocitySpeed: 7
@@ -1153,7 +1154,20 @@ MonoBehaviour:
     m_RotationOrder: 4
   visual: {fileID: 1951859547430355859}
   timeAirTimer: 0.1
-  backpack: {fileID: 6743175475704336380}
+  backpack: {fileID: 7288287861024497346}
+--- !u!114 &5887335577372050686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2761346075355356607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f33c8cb9d64e68488b13b30df20c4b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationController
+  anim: {fileID: 8521729297951035467}
 --- !u!136 &1051801087030394496
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1194,7 +1208,7 @@ MonoBehaviour:
   tools:
   - {fileID: 0}
   - {fileID: 0}
---- !u!114 &6712381545972431529
+--- !u!114 &3490438814794844547
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1203,10 +1217,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2761346075355356607}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f33c8cb9d64e68488b13b30df20c4b6, type: 3}
+  m_Script: {fileID: 11500000, guid: 51eca437b5a1ae549998d832616bfc4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  anim: {fileID: 8521729297951035467}
+  getInDistance: 2
 --- !u!1 &2872385802198724983
 GameObject:
   m_ObjectHideFlags: 0

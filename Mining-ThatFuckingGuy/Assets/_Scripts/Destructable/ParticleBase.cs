@@ -5,18 +5,17 @@ using UnityEngine;
 
 public class ParticleBase : MonoBehaviour
 {
-    public static event Action<float> OnFinished;
     [SerializeField] private AnimationCurve speedCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private float duration = 0.6f;
     [SerializeField] private float sCurveHeight = 1.5f;
     [SerializeField] private float scaleMultiplierMax;
-    public void PlayAnimation(Vector3 startPos, Transform endPos, float dirtAmount)
+    public void PlayAnimation(Vector3 startPos, Transform endPos, float dirtAmount, Action<float, ParticleBase> currentEvent)
     {
         transform.localScale = UnityEngine.Random.Range(1, scaleMultiplierMax) * Vector3.one;
         transform.eulerAngles = new Vector3(UnityEngine.Random.Range(0, 180), UnityEngine.Random.Range(0, 180), UnityEngine.Random.Range(0, 180));
-        StartCoroutine(CollectRoutine(startPos, endPos, dirtAmount));
+        StartCoroutine(CollectRoutine(startPos, endPos, dirtAmount, currentEvent));
     }
-    private IEnumerator CollectRoutine(Vector3 start, Transform end, float dirtAmount)
+    private IEnumerator CollectRoutine(Vector3 start, Transform end, float dirtAmount, Action<float, ParticleBase> currentEvent)
     {
 
 
@@ -39,8 +38,8 @@ public class ParticleBase : MonoBehaviour
         }
 
         transform.position = end.position;
-        OnFinished?.Invoke(dirtAmount);
-        Destroy(gameObject);
+        currentEvent?.Invoke(dirtAmount, this);
+        gameObject.SetActive(false);
     }
 
     private Vector3 CubicBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)

@@ -49,7 +49,7 @@ MonoBehaviour:
   unbreakablePrefab: {fileID: 7381084449247082132, guid: 919176d9774065a428d65e66793dccaf, type: 3}
   destructableData: {fileID: 11400000, guid: f11623ef2323df641ade597d9d76fb7a, type: 2}
   dropPrefab: {fileID: 5902190216700536819, guid: 2e49d785940adc74ca44996c186558ed, type: 3}
---- !u!1 &4402117727388732431
+--- !u!1 &3858323551750781495
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -57,48 +57,46 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3305716467660203831}
-  - component: {fileID: 7002982964740455225}
-  - component: {fileID: 190314092784520404}
-  - component: {fileID: 2711488691068022183}
-  - component: {fileID: 1158519246221805415}
-  m_Layer: 0
-  m_Name: DungeonGate
+  - component: {fileID: 2944408117634803824}
+  - component: {fileID: 6639043705215825890}
+  - component: {fileID: 7828232836128892933}
+  m_Layer: 9
+  m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3305716467660203831
+--- !u!4 &2944408117634803824
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4402117727388732431}
+  m_GameObject: {fileID: 3858323551750781495}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
-  m_LocalScale: {x: 1, y: 4, z: 3}
+  m_LocalPosition: {x: 0, y: 1.4908, z: -2.4982}
+  m_LocalScale: {x: 1.3261, y: 3.9816, z: 3.9964}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3392867176427652173}
+  m_Father: {fileID: 3305716467660203831}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &7002982964740455225
+--- !u!33 &6639043705215825890
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4402117727388732431}
+  m_GameObject: {fileID: 3858323551750781495}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &190314092784520404
+--- !u!23 &7828232836128892933
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4402117727388732431}
+  m_GameObject: {fileID: 3858323551750781495}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -117,7 +115,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 967f78463035d8a41896820801976fbb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -141,6 +139,40 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &4402117727388732431
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3305716467660203831}
+  - component: {fileID: 2711488691068022183}
+  - component: {fileID: 1158519246221805415}
+  m_Layer: 9
+  m_Name: DungeonGate
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3305716467660203831
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4402117727388732431}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 14, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2944408117634803824}
+  m_Father: {fileID: 3392867176427652173}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &2711488691068022183
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -156,12 +188,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 4.023846, z: 4.009055}
+  m_Center: {x: 0, y: 1.5119231, z: -2.5218463}
 --- !u!114 &1158519246221805415
 MonoBehaviour:
   m_ObjectHideFlags: 0

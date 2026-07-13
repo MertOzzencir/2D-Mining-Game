@@ -5,7 +5,6 @@ public class PlacementTool : ToolBase
     [SerializeField] private GameObject cornerPrefab;
     [SerializeField] private GameObject indicatorPrefab;
     [SerializeField] private PlacementToolBall ballPrefab;
-    DungeonManager dungeonManager;
     private int rotationIndex;
     private BlockData currentBlock;
     private Transform pivotTransform;
@@ -16,12 +15,12 @@ public class PlacementTool : ToolBase
         base.Awake();
         corner = Instantiate(cornerPrefab);
         indicator = Instantiate(indicatorPrefab);
-        dungeonManager = DungeonManager.Instance;
         pivotTransform = corner.transform.GetChild(0).transform;
     }
     public override void UpdateUse()
     {
         base.UpdateUse();
+        DungeonManager dungeonManager = PlayerController.CurrentDungeon;
         if (AlternativeState)
         {
             Plane plane = new Plane(Vector3.right, dungeonManager.transform.position);
@@ -134,6 +133,7 @@ public class PlacementTool : ToolBase
     private bool RotationLogic(out bool success, int rotationIndex)
     {
         success = false;
+        DungeonManager dungeonManager = PlayerController.CurrentDungeon;
         switch (rotationIndex)
         {
             case 0:

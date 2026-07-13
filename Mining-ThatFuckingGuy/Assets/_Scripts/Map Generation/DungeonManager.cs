@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class DungeonManager : MonoBehaviour
 {
-    public static DungeonManager Instance;
     [SerializeField] private Texture2D dungeonMap;
     [SerializeField] private UndestructableBase unbreakablePrefab;
     [SerializeField] private DestructableSO destructableData;
@@ -11,7 +10,6 @@ public class DungeonManager : MonoBehaviour
     private BlockData[,] blocks;
     void Awake()
     {
-        Instance = this;
         blocks = new BlockData[dungeonMap.width, dungeonMap.height];
         Debug.Log(blocks.Length);
         CreateDungeon();

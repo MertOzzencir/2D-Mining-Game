@@ -63,7 +63,7 @@ public abstract class ToolBase : MonoBehaviour
     {
         InputManager.OnMouseLeft += MainUse;
         InputManager.OnMouseRight += AlternativeUse;
-        InputManager.OnInteract += InteractUse;
+        InputManager.OnRotate += InteractUse;
     }
     public virtual void OnDisable()
     {
@@ -71,7 +71,7 @@ public abstract class ToolBase : MonoBehaviour
         AlternativeState = false;
         InputManager.OnMouseLeft -= MainUse;
         InputManager.OnMouseRight -= AlternativeUse;
-        InputManager.OnInteract -= InteractUse;
+        InputManager.OnRotate -= InteractUse;
     }
 
 }

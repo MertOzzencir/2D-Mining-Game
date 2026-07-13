@@ -26,7 +26,7 @@ public abstract class DestructableBase : MonoBehaviour
         {
 
             ParticleBase p = Instantiate(data.DirtParticleVFX);
-            p.PlayAnimation(transform.position, dirtTarget.transform, damage >= CurrentHealth ? CurrentHealth : damage);
+            p.PlayAnimation(transform.position, dirtTarget.transform, damage >= CurrentHealth ? CurrentHealth : damage, dirtTarget.AddDirt);
 
         }
         CurrentHealth -= damage;

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallSO
   LayerMask:
     serializedVersion: 2
-    m_Bits: 183
+    m_Bits: 695
   RayDistance: 0.28
   Speed: 12
   MaxBounceRandomAngle: 12
