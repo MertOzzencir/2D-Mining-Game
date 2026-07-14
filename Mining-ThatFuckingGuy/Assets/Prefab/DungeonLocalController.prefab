@@ -206,3 +206,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14b3b1aedad0d7444802e385ca2de643, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  animationTimer: 13

@@ -49,5 +49,8 @@ public class ToolController : MonoBehaviour
     void OnDisable()
     {
         InputManager.OnNumbers -= PickTool;
+        if(CurrentTool == null) return;
+        CurrentTool.DeEquip();
+        CurrentTool = null;
     }
 }

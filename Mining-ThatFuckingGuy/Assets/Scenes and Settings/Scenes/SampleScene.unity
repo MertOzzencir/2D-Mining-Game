@@ -1142,6 +1142,7 @@ MonoBehaviour:
   rideTransform: {fileID: 468307580}
   cameraPosition: {fileID: 794760990}
   inside: {fileID: 1249956331}
+  fuelUsePerSecond: 5
 --- !u!54 &667834245
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1670,6 +1671,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   maxDirtStorageAmount: 2000
+  startedFuelPercent: 5
 --- !u!1 &1340561914
 GameObject:
   m_ObjectHideFlags: 0

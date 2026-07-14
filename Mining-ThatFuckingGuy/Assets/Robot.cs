@@ -7,6 +7,7 @@ public class Robot : MonoBehaviour
     [SerializeField] private Transform rideTransform;
     [SerializeField] private Transform cameraPosition;
     [SerializeField] private RobotInside inside;
+    [SerializeField] private float fuelUsePerSecond;
 
 
 
@@ -14,7 +15,7 @@ public class Robot : MonoBehaviour
     private DungeonGate currentGate;
     private PlayerController currentPlayer;
     private bool isEnteredToGate;
-    void Awake()
+    void Start()
     {
         input = FindAnyObjectByType<InputManager>();
         inside.OnPlayerEnterState += PlayerRobotEnterState;
@@ -22,7 +23,8 @@ public class Robot : MonoBehaviour
     void Update()
     {
         Vector2 inputVector = input.MovementVectorNormalized();
-        if (inputVector == Vector2.zero) return;
+        if (inputVector == Vector2.zero || !inside.IsFull()) return;
+        inside.UseFuel(Time.deltaTime * fuelUsePerSecond);
 
         transform.position += Vector3.up * inputVector.y * Time.deltaTime * speed;
     }
@@ -41,7 +43,7 @@ public class Robot : MonoBehaviour
         }
 
     }
-    private void PlayerRobotEnterState(bool obj,PlayerController player)
+    private void PlayerRobotEnterState(bool obj, PlayerController player)
     {
         if (obj)
         {
@@ -50,6 +52,7 @@ public class Robot : MonoBehaviour
     }
     public void GetInRobot(PlayerController user)
     {
+        isEnteredToGate = false;
         currentPlayer = user;
         this.enabled = true;
         user.DisableRequests();
@@ -62,6 +65,7 @@ public class Robot : MonoBehaviour
     }
     public void GetOutRobot(PlayerController user)
     {
+        if (!isEnteredToGate) return;
         currentPlayer = null;
         this.enabled = false;
         user.enabled = true;
@@ -76,9 +80,13 @@ public class Robot : MonoBehaviour
         {
             if (currentGate == null) return;
 
-            currentGate.AcceptRobot(this);
-            GetOutRobot(currentPlayer);
+            currentGate.AcceptRobot(this, out bool success);
+            if (success) isEnteredToGate = true;
         }
+    }
+    public PlayerController GetCurrentPlayer()
+    {
+        return currentPlayer;
     }
     private void OnEnable()
     {

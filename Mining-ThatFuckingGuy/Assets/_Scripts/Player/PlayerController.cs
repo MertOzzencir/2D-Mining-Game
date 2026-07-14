@@ -2,8 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
-using Unity.VisualScripting;
-using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -11,6 +9,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CinemachineCamera cameraMain;
     [SerializeField] private LayerMask generalCollider;
     [SerializeField] private float speed;
+    [SerializeField] private float animationMultiplier;
     [Header("Gravity")]
     [SerializeField] private float gravityDecreaseMultiplier;
     [SerializeField] private float gravityVelocitySpeed;
@@ -36,11 +35,14 @@ public class PlayerController : MonoBehaviour
     private Vector3 startJumpPosition;
     private float lastTimeGrounded;
     private PlayerAnimationController animationController;
+    private ToolController toolController;
+
     void Awake()
     {
         inputM = FindAnyObjectByType<InputManager>();
         c = GetComponent<CapsuleCollider>();
         animationController = GetComponent<PlayerAnimationController>();
+        toolController = GetComponent<ToolController>();
     }
 
 
@@ -179,6 +181,7 @@ public class PlayerController : MonoBehaviour
     public void DisableRequests()
     {
         animationController.BeforeDisable();
+        toolController.enabled = false;
     }
     public void EmptyAllBackpackDirt(RobotInside robotStoraged)
     {
@@ -198,16 +201,18 @@ public class PlayerController : MonoBehaviour
             a.transform.parent = null;
             a.gameObject.SetActive(true);
             a.PlayAnimation(backpack.transform.position, robotStoraged.transform, avarageDirtAmount, Invoke);
-            yield return new WaitForFixedUpdate();
+            yield return null;
         }
     }
     void OnEnable()
     {
         animationController.enabled = true;
+        toolController.enabled = true;
         InputManager.OnJump += Jump;
     }
     void OnDisable()
     {
         InputManager.OnJump -= Jump;
+
     }
 }
