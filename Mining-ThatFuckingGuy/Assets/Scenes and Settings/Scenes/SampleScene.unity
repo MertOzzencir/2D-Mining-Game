@@ -3261,6 +3261,10 @@ PrefabInstance:
       propertyPath: cameraMain
       value: 
       objectReference: {fileID: 1490685215}
+    - target: {fileID: 2151883896799032673, guid: f5d26273dded6fa4badc51401b0fea1d, type: 3}
+      propertyPath: animationMultiplier
+      value: 0.001
+      objectReference: {fileID: 0}
     - target: {fileID: 2761346075355356607, guid: f5d26273dded6fa4badc51401b0fea1d, type: 3}
       propertyPath: m_Name
       value: Player

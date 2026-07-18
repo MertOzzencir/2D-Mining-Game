@@ -6,10 +6,10 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private int particlesPerFrame = 5; 
     [SerializeField] private CinemachineCamera cameraMain;
     [SerializeField] private LayerMask generalCollider;
     [SerializeField] private float speed;
-    [SerializeField] private float animationMultiplier;
     [Header("Gravity")]
     [SerializeField] private float gravityDecreaseMultiplier;
     [SerializeField] private float gravityVelocitySpeed;
@@ -196,12 +196,17 @@ public class PlayerController : MonoBehaviour
     }
     IEnumerator EmptyDirtAnimation(List<ParticleBase> particlesCopy, Transform robotStoraged, float avarageDirtAmount, Action<float, ParticleBase> Invoke)
     {
-        foreach (var a in particlesCopy)
+        for (int i = 0; i < particlesCopy.Count; i++)
         {
+            var a = particlesCopy[i];
             a.transform.parent = null;
             a.gameObject.SetActive(true);
             a.PlayAnimation(backpack.transform.position, robotStoraged.transform, avarageDirtAmount, Invoke);
-            yield return null;
+
+            if ((i + 1) % particlesPerFrame == 0)
+            {
+                yield return null; // sadece her N particle'da bir frame bekle
+            }
         }
     }
     void OnEnable()
