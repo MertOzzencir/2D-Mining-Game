@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5bc41968ebb9c84a893200fae011a5e, type: 3}
+  m_Name: Dirt with grass Destructable Data
+  m_EditorClassIdentifier: Assembly-CSharp::DestructableSO
+  Prefab: {fileID: 6743923148882484316, guid: 929cf04293cae4346ab19dabd2b2b1e4, type: 3}
+  MaxHealth: 5
+  DirtParticleVFX: {fileID: 1846073726875582058, guid: c8ebcd58cde259f4ead7a835f81d69e6, type: 3}

@@ -4,7 +4,7 @@ public class DungeonManager : MonoBehaviour
 {
     [SerializeField] private Texture2D dungeonMap;
     [SerializeField] private UndestructableBase unbreakablePrefab;
-    [SerializeField] private DestructableSO destructableData;
+    [SerializeField] private DestructableSO[] destructableData;
     [SerializeField] private GameObject dropPrefab;
 
     private BlockData[,] blocks;
@@ -47,12 +47,13 @@ public class DungeonManager : MonoBehaviour
     {
         float zRandomOffset = Random.Range(-0.5f, 0.5f);
         float yRandomOffset = Random.Range(-0.5f, 0.5f);
-        Instantiate(dropPrefab, breakableT.transform.position + new Vector3(0, yRandomOffset, zRandomOffset), Quaternion.identity);
         BlockData ownData = blocks[(int)breakableT.transform.position.z - (int)transform.position.z, (int)breakableT.transform.position.y - (int)transform.position.y];
         ownData.IsEmpty = true;
         ownData.CalculateCorners(this);
         RecalculateNeighborCorners(ownData);
         breakableT.OnDeath -= HandleDeathDestructable;
+        if (breakableT is DropableDestructable)
+            Instantiate(dropPrefab, breakableT.transform.position + new Vector3(0, yRandomOffset, zRandomOffset), Quaternion.identity);
     }
     private void GetPixelFromMap(Color mapColor, Vector3 spawnPosition, int zIndex, int yIndex, Vector3 worldPos)
     {
@@ -76,10 +77,22 @@ public class DungeonManager : MonoBehaviour
                 break;
             case ObjectType.Destructable:
 
-                DestructableBase g2 = Instantiate(destructableData.Prefab, spawnPosition, Quaternion.identity);
+                DestructableBase g2 = Instantiate(destructableData[0].Prefab, spawnPosition, Quaternion.identity);
                 g2.OnSpawned();
                 g2.transform.parent = transform;
                 g2.OnDeath += HandleDeathDestructable;
+                break;
+            case ObjectType.Dirt:
+                DestructableBase dirt = Instantiate(destructableData[1].Prefab, spawnPosition, Quaternion.identity);
+                dirt.OnSpawned();
+                dirt.transform.parent = transform;
+                dirt.OnDeath += HandleDeathDestructable;
+                break;
+            case ObjectType.DirtWithGrass:
+                DestructableBase dirtGrass = Instantiate(destructableData[2].Prefab, spawnPosition, Quaternion.identity);
+                dirtGrass.OnSpawned();
+                dirtGrass.transform.parent = transform;
+                dirtGrass.OnDeath += HandleDeathDestructable;
                 break;
         }
         blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos, this);
@@ -89,7 +102,8 @@ public class DungeonManager : MonoBehaviour
         if (ColorApproximately(c, Color.white)) return ObjectType.FreeSpace;
         if (ColorApproximately(c, Color.black)) return ObjectType.Undestructable;
         if (ColorApproximately(c, Color.blue)) return ObjectType.Destructable;
-
+        if (ColorApproximately(c, Color.green)) return ObjectType.DirtWithGrass;
+        if (ColorApproximately(c, Color.brown)) return ObjectType.Dirt;
         Debug.LogWarning($"No color information: {c}");
         return ObjectType.FreeSpace;
     }
@@ -156,5 +170,7 @@ public enum ObjectType
 {
     FreeSpace,
     Undestructable,
-    Destructable
+    Destructable,
+    Dirt,
+    DirtWithGrass
 }

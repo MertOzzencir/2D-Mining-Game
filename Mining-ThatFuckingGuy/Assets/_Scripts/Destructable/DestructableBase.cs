@@ -5,7 +5,6 @@ public abstract class DestructableBase : MonoBehaviour
 {
     public event Action<DestructableBase> OnDeath;
     [SerializeField] private DestructableSO data;
-    [SerializeField] private ParticleBase hitParticle;
 
     public float CurrentHealth { get; private set; }
 

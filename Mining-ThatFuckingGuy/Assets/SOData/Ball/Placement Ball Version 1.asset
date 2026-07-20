@@ -18,5 +18,5 @@ MonoBehaviour:
   RayDistance: 0.28
   Speed: 12
   MaxBounceRandomAngle: 12
-  Damage: 1
+  Damage: 5
   BallRadius: 0.25

@@ -1101,12 +1101,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef5c1066f3dc57f49b0c66d2f4c531e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  particlesPerFrame: 2
   cameraMain: {fileID: 0}
   generalCollider:
     serializedVersion: 2
     m_Bits: 1215
   speed: 7
-  animationMultiplier: 0.001
   gravityDecreaseMultiplier: 4
   gravityVelocitySpeed: 7
   gravityTerminalVelocity: -20

@@ -9,7 +9,7 @@ public class DungeonGate : MonoBehaviour
     void Awake()
     {
         owner = transform.parent.GetComponent<DungeonManager>();
-        transform.position = owner.transform.position + new Vector3(0, owner.DungeonHeight() / 2 - 2, 0);
+        transform.position = owner.transform.position + new Vector3(0, owner.DungeonHeight() / 2-1 , 0);
     }
     public void AcceptRobot(Robot robot,out bool success)
     {
