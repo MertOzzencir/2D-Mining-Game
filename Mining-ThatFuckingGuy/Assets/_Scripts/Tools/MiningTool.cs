@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Collections;
 using UnityEngine;
 
 public class MiningTool : ToolBase
@@ -11,8 +10,6 @@ public class MiningTool : ToolBase
     [SerializeField] private Transform storagedPlacement;
     private Vector3 direction;
     private float timer;
-    private DropBase[] storagedDrops;
-    private List<DropBase> listOfAnimatedDrops = new List<DropBase>();
     private MiningToolSO data => Data as MiningToolSO;
 
     public override void Awake()
@@ -22,7 +19,6 @@ public class MiningTool : ToolBase
         stats[UpgradeType.ToolCooldown] = data.CooldownTimer;
         stats[UpgradeType.ToolMaxRange] = data.Range;
 
-        storagedDrops = new DropBase[data.StorageLimit];
     }
 
     public override void UpdateUse()
@@ -57,47 +53,33 @@ public class MiningTool : ToolBase
 
     private void CollectInCone()
     {
-        Collider[] hits = Physics.OverlapSphere(AimPositionTransform.position, stats[UpgradeType.ToolMaxRange], dropLayerMask);
-        List<DropBase> currentCollected = new List<DropBase>();
-        foreach (Collider col in hits)
+        DungeonManager currentManager = PlayerController.CurrentDungeon;
+        Plane plane = new Plane(Vector3.right, currentManager.transform.position);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (plane.Raycast(ray, out float distance))
         {
-            if (!col.TryGetComponent(out DropBase d) || d.IsCollected) continue;
-
-            Vector3 toTarget = (col.transform.position - AimPositionTransform.position).normalized;
-            float angle = Vector3.Angle(direction, toTarget);
-
-            if (angle <= data.ConeAngle)
+            Vector3 hitPoint = ray.GetPoint(distance);
+            BlockData currentData = currentManager.GetBlockFromWorldPosition(hitPoint, out _);
+            foreach (var a in currentData.DropsOnBlock)
             {
-                for (int i = 0; i < storagedDrops.Length; i++)
-                {
-                    if (storagedDrops[i] == null)
-                    {
-                        d.Collect();
-                        currentCollected.Add(d);
-                        listOfAnimatedDrops.Add(d);
-                        d.IndexInStorage = i;
-                        storagedDrops[i] = d;
-                        break;
-                    }
-                }
+                Vector3 dropPos = currentManager.instancedDropRenderer.GetDropPosition(a.DropType, a.DropIndex);
+                currentManager.instancedDropRenderer.RemoveDrop(a.DropType, a.DropIndex);
+
+                currentManager.instancedDropRenderer.TryGetMeshAndMaterial(a.DropType, out Mesh mesh, out Material material);
+
+                GameObject drop = new GameObject("CollectProxy");
+                drop.transform.position = dropPos;
+                drop.AddComponent<MeshFilter>().sharedMesh = mesh;
+                drop.AddComponent<MeshRenderer>().sharedMaterial = material;
+                StartCoroutine(CollectAnimation(drop.transform, dropPos, Mathf.Clamp(Vector3.Distance(transform.position, dropPos), 0f, data.CollectAnimationTimer)));
             }
+            currentData.DropsOnBlock.Clear();
         }
-        if (currentCollected.Count > 0)
-        {
-            StartCoroutine(ControlAnimationTimer(currentCollected, .01f));
-        }
+
+
     }
-    private IEnumerator ControlAnimationTimer(List<DropBase> lists, float waitTimer)
-    {
-        float timer = data.CollectAnimationTimer;
-        foreach (var a in lists)
-        {
-            a.AnimationLogic();
-            StartCoroutine(CollectAnimation(a, a.transform.position, timer));
-            yield return new WaitForSeconds(waitTimer);
-        }
-    }
-    private IEnumerator CollectAnimation(DropBase drop, Vector3 startPosition, float animationDuration)
+
+    private IEnumerator CollectAnimation(Transform drop, Vector3 startPosition, float animationDuration)
     {
 
         float duration = animationDuration;
@@ -125,21 +107,11 @@ public class MiningTool : ToolBase
         drop.gameObject.SetActive(false);
         drop.transform.localPosition = Vector3.zero;
         drop.transform.localEulerAngles = Vector3.zero;
-        listOfAnimatedDrops.Remove(drop);
     }
     public override void OnDisable()
     {
         base.OnDisable();
-        if (listOfAnimatedDrops.Count > 0)
-        {
-            foreach (var a in listOfAnimatedDrops)
-            {
-                a.UnCollect();
-                storagedDrops[a.IndexInStorage] = null;
-                a.IndexInStorage = 0;
-            }
-        }
-        listOfAnimatedDrops.Clear();
+
     }
 
     public override void UpgradeSelf(UpgradeData upgradeData)

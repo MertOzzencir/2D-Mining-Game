@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DungeonManager : MonoBehaviour
@@ -8,23 +9,18 @@ public class DungeonManager : MonoBehaviour
     [SerializeField] private GameObject dropPrefab;
 
     private BlockData[,] blocks;
+    public InstancedDropRenderer instancedDropRenderer;
     void Awake()
     {
+        instancedDropRenderer = GetComponent<InstancedDropRenderer>();
         blocks = new BlockData[dungeonMap.width, dungeonMap.height];
         Debug.Log(blocks.Length);
         CreateDungeon();
     }
-    // void Update()
-    // {
-    //     Plane plane = new Plane(Vector3.right, transform.position);
-    //     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-    //     if (plane.Raycast(ray, out float enter))
-    //     {
-    //         Vector3 hitPoint = ray.GetPoint(enter);
-    //         BlockData current = GetBlockFromWorldPosition(hitPoint);
-    //         holder.transform.position = current.WorldPosition;
-    //     }
-    // }
+    void Update()
+    {
+
+    }
     private void CreateDungeon()
     {
         int width = dungeonMap.width;
@@ -52,8 +48,12 @@ public class DungeonManager : MonoBehaviour
         ownData.CalculateCorners(this);
         RecalculateNeighborCorners(ownData);
         breakableT.OnDeath -= HandleDeathDestructable;
-        if (breakableT is DropableDestructable)
-            Instantiate(dropPrefab, breakableT.transform.position + new Vector3(0, yRandomOffset, zRandomOffset), Quaternion.identity);
+        if (breakableT is DropableDestructable dropable)
+        {
+            Vector3 spawnPos = breakableT.transform.position;
+            int index = instancedDropRenderer.RegisterDrop(dropable.DropData, dropable.DropData.Material, spawnPos);
+            ownData.DropsOnBlock.Add(new DropReference(dropable.DropData.DropType,index));
+        }
     }
     private void GetPixelFromMap(Color mapColor, Vector3 spawnPosition, int zIndex, int yIndex, Vector3 worldPos)
     {
@@ -107,7 +107,10 @@ public class DungeonManager : MonoBehaviour
         Debug.LogWarning($"No color information: {c}");
         return ObjectType.FreeSpace;
     }
-
+    private BlockData GetEmptyBlockFromVerticalDirection(BlockData from)
+    {
+        return null;
+    }
 
     private bool ColorApproximately(Color a, Color b, float tolerance = 0.05f)
     {

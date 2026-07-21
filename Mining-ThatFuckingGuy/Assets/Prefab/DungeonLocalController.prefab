@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3392867176427652173}
   - component: {fileID: 3279976526767604578}
+  - component: {fileID: 6175307123847392354}
   m_Layer: 0
   m_Name: DungeonLocalController
   m_TagString: Untagged
@@ -45,10 +46,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95fa205c1314f7245ba746dc302b6c8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  dungeonMap: {fileID: 2800000, guid: 5fb53ce7dd50651468c102227b59dbb6, type: 3}
+  dungeonMap: {fileID: 2800000, guid: ddca95a6e1c350747be7bf6b97cf6ef7, type: 3}
   unbreakablePrefab: {fileID: 7381084449247082132, guid: 919176d9774065a428d65e66793dccaf, type: 3}
-  destructableData: {fileID: 11400000, guid: f11623ef2323df641ade597d9d76fb7a, type: 2}
+  destructableData:
+  - {fileID: 11400000, guid: f11623ef2323df641ade597d9d76fb7a, type: 2}
+  - {fileID: 11400000, guid: a8e613337ae103b4faa082c8ec443905, type: 2}
+  - {fileID: 11400000, guid: 8039c47c7f4107b41be61064bd03afe4, type: 2}
   dropPrefab: {fileID: 5902190216700536819, guid: 2e49d785940adc74ca44996c186558ed, type: 3}
+--- !u!114 &6175307123847392354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3802036775713300806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d17c88b43cd4a384d8289e1969a5773d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InstancedDropRenderer
 --- !u!1 &3858323551750781495
 GameObject:
   m_ObjectHideFlags: 0
@@ -166,7 +182,7 @@ Transform:
   m_GameObject: {fileID: 4402117727388732431}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 14, z: 0}
+  m_LocalPosition: {x: 0, y: 15, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

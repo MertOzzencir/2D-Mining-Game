@@ -6,6 +6,9 @@ public class DropBase : MonoBehaviour
     [SerializeField] private float slerpTiming;
 
     [SerializeField] private DropSO data;
+    
+    public Mesh Mesh;
+    public Material Material;
     public bool IsCollected { get; private set; }
     public int IndexInStorage { get; set; }
     private Rigidbody rb;

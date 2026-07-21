@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 523990330392884551}
   - component: {fileID: 5426807712664186562}
   m_Layer: 7
-  m_Name: NormalDestructable
+  m_Name: DropableDestructable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -77,6 +77,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NormalDestructable
   data: {fileID: 11400000, guid: f11623ef2323df641ade597d9d76fb7a, type: 2}
+  DropData: {fileID: 11400000, guid: 96987bd3caa50444593fcc7737d3d387, type: 2}
 --- !u!1 &7605340821051255673
 GameObject:
   m_ObjectHideFlags: 0

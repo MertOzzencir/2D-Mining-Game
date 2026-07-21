@@ -10,5 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb438e9fda2d95e4b88413636de483ad, type: 3}
-  m_Name: Prototype Drop Data
+  m_Name: Iron Drop Data
   m_EditorClassIdentifier: Assembly-CSharp::DropSO
+  Mesh: {fileID: 2506578005322757104, guid: 4c0f274a745b3304ea202cebfd78dcfb, type: 3}
+  Material: {fileID: 2100000, guid: 13ed0cebed86dde4fbbc24ddb5dabbe4, type: 2}

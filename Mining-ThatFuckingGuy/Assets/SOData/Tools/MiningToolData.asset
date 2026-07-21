@@ -16,5 +16,5 @@ MonoBehaviour:
   CooldownTimer: 1
   Damage: 1
   StorageLimit: 10000
-  CollectAnimationTimer: 0.2
+  CollectAnimationTimer: 0.3
   ConeAngle: 30
