@@ -8,6 +8,7 @@ public class MiningTool : ToolBase
     [SerializeField] private LayerMask destructable;
     [SerializeField] private LayerMask dropLayerMask;
     [SerializeField] private Transform storagedPlacement;
+    [SerializeField] private LaserBeam laser;
     private Vector3 direction;
     private float timer;
     private MiningToolSO data => Data as MiningToolSO;
@@ -18,7 +19,7 @@ public class MiningTool : ToolBase
         stats[UpgradeType.ToolDamage] = data.Damage;
         stats[UpgradeType.ToolCooldown] = data.CooldownTimer;
         stats[UpgradeType.ToolMaxRange] = data.Range;
-
+        laser.UpdateRange(stats[UpgradeType.ToolMaxRange]);
     }
 
     public override void UpdateUse()
@@ -117,6 +118,7 @@ public class MiningTool : ToolBase
     public override void UpgradeSelf(UpgradeData upgradeData)
     {
         stats[upgradeData.Type] += upgradeData.Amount;
+        laser.UpdateRange(stats[UpgradeType.ToolMaxRange]);
     }
 
     void OnDrawGizmos()

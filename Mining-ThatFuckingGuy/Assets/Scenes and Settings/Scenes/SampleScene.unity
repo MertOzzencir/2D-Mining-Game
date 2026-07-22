@@ -3143,6 +3143,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MiningTool
       objectReference: {fileID: 0}
+    - target: {fileID: 692886899735510039, guid: 28032bd6d887c2340a4befcfc729f2dc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1272999011221579701, guid: 28032bd6d887c2340a4befcfc729f2dc, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

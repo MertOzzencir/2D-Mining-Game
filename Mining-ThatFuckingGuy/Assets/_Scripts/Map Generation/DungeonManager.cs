@@ -17,10 +17,7 @@ public class DungeonManager : MonoBehaviour
         Debug.Log(blocks.Length);
         CreateDungeon();
     }
-    void Update()
-    {
 
-    }
     private void CreateDungeon()
     {
         int width = dungeonMap.width;
@@ -40,21 +37,36 @@ public class DungeonManager : MonoBehaviour
                 blocks[w, h].CalculateCorners(this);
     }
     private void HandleDeathDestructable(DestructableBase breakableT)
+{
+    float zRandomOffset = Random.Range(-0.5f, 0.5f);
+    float yRandomOffset = Random.Range(-0.5f, 0.5f);
+    BlockData ownData = blocks[(int)breakableT.transform.position.z - (int)transform.position.z, (int)breakableT.transform.position.y - (int)transform.position.y];
+    ownData.IsEmpty = true;
+    ownData.CalculateCorners(this);
+    RecalculateNeighborCorners(ownData);
+
+    // Üstteki blokta duran drop'lar varsa, artık altları boşaldığı için tekrar düşsünler
+    int aboveY = ownData.YIndex + 1;
+    if (aboveY < blocks.GetLength(1))
     {
-        float zRandomOffset = Random.Range(-0.5f, 0.5f);
-        float yRandomOffset = Random.Range(-0.5f, 0.5f);
-        BlockData ownData = blocks[(int)breakableT.transform.position.z - (int)transform.position.z, (int)breakableT.transform.position.y - (int)transform.position.y];
-        ownData.IsEmpty = true;
-        ownData.CalculateCorners(this);
-        RecalculateNeighborCorners(ownData);
-        breakableT.OnDeath -= HandleDeathDestructable;
-        if (breakableT is DropableDestructable dropable)
+        BlockData above = blocks[ownData.ZIndex, aboveY];
+        if (above != null && above.DropsOnBlock.Count > 0)
         {
-            Vector3 spawnPos = breakableT.transform.position;
-            int index = instancedDropRenderer.RegisterDrop(dropable.DropData, dropable.DropData.Material, spawnPos);
-            ownData.DropsOnBlock.Add(new DropReference(dropable.DropData.DropType,index));
+            foreach (var dropRef in above.DropsOnBlock)
+            {
+                instancedDropRenderer.UngroundDrop(dropRef.DropType, dropRef.DropIndex);
+            }
+            above.DropsOnBlock.Clear();
         }
     }
+
+    breakableT.OnDeath -= HandleDeathDestructable;
+    if (breakableT is DropableDestructable dropable)
+    {
+        Vector3 spawnPos = breakableT.transform.position;
+        instancedDropRenderer.RegisterDrop(dropable.DropData, dropable.DropData.Material, spawnPos);
+    }
+}
     private void GetPixelFromMap(Color mapColor, Vector3 spawnPosition, int zIndex, int yIndex, Vector3 worldPos)
     {
         switch (GetTypeFromPixel(mapColor))
@@ -107,16 +119,19 @@ public class DungeonManager : MonoBehaviour
         Debug.LogWarning($"No color information: {c}");
         return ObjectType.FreeSpace;
     }
-    private BlockData GetEmptyBlockFromVerticalDirection(BlockData from)
-    {
-        return null;
-    }
 
     private bool ColorApproximately(Color a, Color b, float tolerance = 0.05f)
     {
         return Mathf.Abs(a.r - b.r) < tolerance &&
                Mathf.Abs(a.g - b.g) < tolerance &&
                Mathf.Abs(a.b - b.b) < tolerance;
+    }
+    public BlockData GetEmptyBlockFromVertical(BlockData startBlock)
+    {
+        int yIndex = startBlock.YIndex - 1;
+        if (yIndex < 0) return null; 
+
+        return blocks[startBlock.ZIndex, yIndex];
     }
     public BlockData GetBlockFromWorldPosition(Vector3 pos, out bool isEmpty)
     {
