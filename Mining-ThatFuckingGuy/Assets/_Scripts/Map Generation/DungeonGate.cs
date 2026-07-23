@@ -9,9 +9,9 @@ public class DungeonGate : MonoBehaviour
     void Awake()
     {
         owner = transform.parent.GetComponent<DungeonManager>();
-        transform.position = owner.transform.position + new Vector3(0, owner.DungeonHeight() / 2-1 , 0);
+        transform.position = owner.transform.position + new Vector3(0, owner.DungeonHeight() / 2 - 1, 0);
     }
-    public void AcceptRobot(Robot robot,out bool success)
+    public void AcceptRobot(Robot robot, out bool success)
     {
         success = false;
         if (currentRobot == null)
@@ -21,6 +21,12 @@ public class DungeonGate : MonoBehaviour
             PlayerController.CurrentDungeon = owner;
         }
     }
+    public void RemoveRobot()
+    {
+        StopAllCoroutines();
+        currentRobot = null;
+        PlayerController.CurrentDungeon = null;
+    }
     IEnumerator GateEnterAnimation(Robot robot)
     {
         while (Mathf.Abs(robot.transform.position.y - transform.position.y) > 0.01f)
@@ -29,6 +35,6 @@ public class DungeonGate : MonoBehaviour
             yield return null;
         }
         robot.transform.position = new Vector3(robot.transform.position.x, transform.position.y, robot.transform.position.z);
-        robot.GetOutRobot(robot.GetCurrentPlayer());
+        //robot.GetOutRobot(robot.GetCurrentPlayer());
     }
 }

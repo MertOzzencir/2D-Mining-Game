@@ -19,7 +19,7 @@ public class RobotUseController : MonoBehaviour
     {
         if (!isRiding)
         {
-            float distance = Vector3.Distance(transform.position, robot.transform.position);
+            float distance = Mathf.Abs(Vector3.Distance(transform.position, robot.transform.position));
             if (distance < getInDistance)
             {
                 isRiding = true;
@@ -28,8 +28,9 @@ public class RobotUseController : MonoBehaviour
         }
         else if (isRiding)
         {
-            robot.GetOutRobot(player);
-            isRiding = false;
+            robot.GetOutRobot(player, out bool s);
+            if (s)
+                isRiding = false;
         }
 
     }

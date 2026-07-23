@@ -22,6 +22,8 @@ public class Robot : MonoBehaviour
     }
     void Update()
     {
+        if (isEnteredToGate) return;
+
         Vector2 inputVector = input.MovementVectorNormalized();
         if (inputVector == Vector2.zero || !inside.IsFull()) return;
         inside.UseFuel(Time.deltaTime * fuelUsePerSecond);
@@ -52,20 +54,23 @@ public class Robot : MonoBehaviour
     }
     public void GetInRobot(PlayerController user)
     {
-        isEnteredToGate = false;
         currentPlayer = user;
         this.enabled = true;
         user.DisableRequests();
-        user.GetCamera().Target.TrackingTarget = cameraPosition;
         user.enabled = false;
         user.transform.parent = rideTransform;
         user.GetVisual().forward = rideTransform.forward;
 
         user.transform.localPosition = Vector3.zero;
     }
-    public void GetOutRobot(PlayerController user)
+    public void GetOutRobot(PlayerController user, out bool success)
     {
-        if (!isEnteredToGate) return;
+        success = true;
+        if (!isEnteredToGate)
+        {
+            success = false;
+            return;
+        }
         currentPlayer = null;
         this.enabled = false;
         user.enabled = true;
@@ -74,15 +79,21 @@ public class Robot : MonoBehaviour
     }
     private void TryEnterToGate()
     {
-        if (currentPlayer == null) return;
+        if (currentPlayer == null || currentGate == null) return;
 
         if (!isEnteredToGate)
         {
-            if (currentGate == null) return;
-
             currentGate.AcceptRobot(this, out bool success);
             if (success) isEnteredToGate = true;
         }
+        else
+        {
+            currentPlayer.GetCamera().Target.TrackingTarget = cameraPosition;
+            currentGate.RemoveRobot();
+            isEnteredToGate = false;
+            currentGate = null;
+        }
+
     }
     public PlayerController GetCurrentPlayer()
     {

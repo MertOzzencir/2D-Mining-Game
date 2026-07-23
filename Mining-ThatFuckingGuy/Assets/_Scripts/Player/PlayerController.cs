@@ -205,7 +205,7 @@ public class PlayerController : MonoBehaviour
 
             if ((i + 1) % particlesPerFrame == 0)
             {
-                yield return null; // sadece her N particle'da bir frame bekle
+                yield return null; 
             }
         }
     }

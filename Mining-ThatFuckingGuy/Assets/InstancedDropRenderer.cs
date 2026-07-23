@@ -7,7 +7,6 @@ public class InstancedDropRenderer : MonoBehaviour
 
     private Dictionary<DropType, DropBatch> batches = new();
     private DungeonManager dungeonManager;
-    private float timer;
 
     void Awake()
     {
@@ -38,14 +37,13 @@ public class InstancedDropRenderer : MonoBehaviour
         batch.HasTarget.Add(false);
         batch.TargetY.Add(position.y);
         batch.PendingBlock.Add(null);
+        batch.BobTimer.Add(0f);
 
         return index;
     }
 
     void Update()
     {
-        timer += Time.deltaTime;
-
         foreach (var kvp in batches)
         {
             DropType type = kvp.Key;
@@ -58,8 +56,6 @@ public class InstancedDropRenderer : MonoBehaviour
 
                 if (!batch.Grounded[i])
                 {
-                    // ARTIK her frame yeniden hesaplanıyor - sadece HasTarget false iken değil.
-                    // Böylece düşüş sırasında altındaki bloklar kırılırsa, hedef otomatik derinleşir.
                     FindTargetForDrop(batch, i);
 
                     if (batch.HasTarget[i])
@@ -77,8 +73,10 @@ public class InstancedDropRenderer : MonoBehaviour
                 }
                 else
                 {
+                    batch.BobTimer[i] += Time.deltaTime; // kendi timer'ı, herkesle paylaşılmıyor
+
                     InstanceData grounded = batch.Instances[i];
-                    float bob = Mathf.Sin(timer) / 4f;
+                    float bob = Mathf.Sin(batch.BobTimer[i]) / 4f;
                     grounded.objectToWorld.m13 = batch.BaseY[i] + bob;
                     batch.Instances[i] = grounded;
                 }
@@ -96,7 +94,7 @@ public class InstancedDropRenderer : MonoBehaviour
         batch.Grounded[index] = false;
         batch.HasTarget[index] = false;
 
-        FindTargetForDrop(batch, index); // aynı frame içinde, hemen yeniden hesapla
+        FindTargetForDrop(batch, index);
     }
 
     private void FindTargetForDrop(DropBatch batch, int i)
@@ -117,7 +115,7 @@ public class InstancedDropRenderer : MonoBehaviour
 
         if (next == null)
         {
-            return; 
+            return;
         }
 
         batch.TargetY[i] = lastEmpty.WorldPosition.y;
@@ -138,6 +136,7 @@ public class InstancedDropRenderer : MonoBehaviour
 
         batch.BaseY[i] = restPosition.y;
         batch.Grounded[i] = true;
+        batch.BobTimer[i] = 0f; // sıfırdan başlasın, sıçrama olmasın
 
         restBlock.DropsOnBlock.Add(new DropReference(type, i));
     }
@@ -183,6 +182,7 @@ public class DropBatch
     public List<bool> HasTarget = new();
     public List<float> TargetY = new();
     public List<BlockData> PendingBlock = new();
+    public List<float> BobTimer = new(); 
 }
 
 public struct InstanceData

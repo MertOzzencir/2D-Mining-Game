@@ -90,7 +90,7 @@ public class MiningTool : ToolBase
         {
             Vector3 refStorage = storagedPlacement.position;
             refStorage.x = 0;
-            Vector3 center = Vector3.Lerp(startPosition, refStorage, 0.5f) - Vector3.up * 0.3f; // biraz aşağıda bir merkez
+            Vector3 center = Vector3.Lerp(startPosition, refStorage, 0.5f) - Vector3.up * 0.3f;
             center.x = 0;
             Vector3 startRelative = startPosition - center;
             Vector3 endRelative = refStorage - center;
