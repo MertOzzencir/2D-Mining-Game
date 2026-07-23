@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MiningToolData
   m_EditorClassIdentifier: Assembly-CSharp::MinigToolSO
   Range: 3
-  CooldownTimer: 1
+  CooldownTimer: 0.11111111
   Damage: 1
   StorageLimit: 10000
   CollectAnimationTimer: 0.3

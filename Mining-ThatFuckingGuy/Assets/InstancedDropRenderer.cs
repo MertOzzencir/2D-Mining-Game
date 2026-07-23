@@ -58,10 +58,9 @@ public class InstancedDropRenderer : MonoBehaviour
 
                 if (!batch.Grounded[i])
                 {
-                    if (!batch.HasTarget[i])
-                    {
-                        FindTargetForDrop(batch, i);
-                    }
+                    // ARTIK her frame yeniden hesaplanıyor - sadece HasTarget false iken değil.
+                    // Böylece düşüş sırasında altındaki bloklar kırılırsa, hedef otomatik derinleşir.
+                    FindTargetForDrop(batch, i);
 
                     if (batch.HasTarget[i])
                     {
@@ -88,14 +87,18 @@ public class InstancedDropRenderer : MonoBehaviour
             Graphics.RenderMeshInstanced(batch.RenderParams, batch.Mesh, 0, batch.Instances);
         }
     }
+
     public void UngroundDrop(DropType type, int index)
     {
         if (!batches.TryGetValue(type, out DropBatch batch)) return;
         if (index < 0 || index >= batch.Instances.Count) return;
 
         batch.Grounded[index] = false;
-        batch.HasTarget[index] = false; // bir sonraki Update'te yeni hedef aranacak
+        batch.HasTarget[index] = false;
+
+        FindTargetForDrop(batch, index); // aynı frame içinde, hemen yeniden hesapla
     }
+
     private void FindTargetForDrop(DropBatch batch, int i)
     {
         InstanceData inst = batch.Instances[i];
@@ -114,7 +117,7 @@ public class InstancedDropRenderer : MonoBehaviour
 
         if (next == null)
         {
-            return;
+            return; 
         }
 
         batch.TargetY[i] = lastEmpty.WorldPosition.y;
@@ -164,7 +167,7 @@ public class InstancedDropRenderer : MonoBehaviour
         if (index < 0 || index >= batch.Instances.Count) return;
 
         InstanceData inst = batch.Instances[index];
-        inst.objectToWorld = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.zero); // scale=0, görünmez
+        inst.objectToWorld = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.zero);
         batch.Instances[index] = inst;
     }
 }
