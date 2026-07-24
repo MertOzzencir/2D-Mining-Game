@@ -335,4 +335,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LaserBeam
   beam: {fileID: 5839349903076331967}
-  visualOffSet: 0
+  visualOffSet: 0.55

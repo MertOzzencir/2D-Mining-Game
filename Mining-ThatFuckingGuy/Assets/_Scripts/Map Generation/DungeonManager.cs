@@ -7,6 +7,7 @@ public class DungeonManager : MonoBehaviour
     [SerializeField] private UndestructableBase unbreakablePrefab;
     [SerializeField] private DestructableSO[] destructableData;
     [SerializeField] private GameObject dropPrefab;
+    [SerializeField] private GameObject wallPrefab;
 
     private BlockData[,] blocks;
     public InstancedDropRenderer instancedDropRenderer;
@@ -29,6 +30,16 @@ public class DungeonManager : MonoBehaviour
             {
                 Color pixelColor = pixels[h * width + w];
                 Vector3 spawnPosition = transform.position + new Vector3(0, h, w);
+                GameObject wall = Instantiate(wallPrefab);
+                wall.transform.position = spawnPosition - Vector3.right * 0.7f;
+
+                Quaternion lookRotation = Quaternion.LookRotation(Vector3.right);
+                wall.transform.rotation = lookRotation;
+                int randomTurn = Random.Range(0, 4);
+                float turnAmount = 90 * randomTurn;
+
+                wall.transform.parent = transform;
+                wall.transform.localEulerAngles = new Vector3(wall.transform.eulerAngles.x,wall.transform.eulerAngles.y,turnAmount);
                 GetPixelFromMap(pixelColor, spawnPosition, w, h, spawnPosition);
             }
         }
