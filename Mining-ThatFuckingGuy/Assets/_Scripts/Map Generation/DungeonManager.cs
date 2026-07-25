@@ -31,7 +31,7 @@ public class DungeonManager : MonoBehaviour
                 Color pixelColor = pixels[h * width + w];
                 Vector3 spawnPosition = transform.position + new Vector3(0, h, w);
                 GameObject wall = Instantiate(wallPrefab);
-                wall.transform.position = spawnPosition - Vector3.right * 0.7f;
+                wall.transform.position = spawnPosition - Vector3.right;
 
                 Quaternion lookRotation = Quaternion.LookRotation(Vector3.right);
                 wall.transform.rotation = lookRotation;
@@ -39,7 +39,7 @@ public class DungeonManager : MonoBehaviour
                 float turnAmount = 90 * randomTurn;
 
                 wall.transform.parent = transform;
-                wall.transform.localEulerAngles = new Vector3(wall.transform.eulerAngles.x,wall.transform.eulerAngles.y,turnAmount);
+                wall.transform.localEulerAngles = new Vector3(wall.transform.eulerAngles.x, wall.transform.eulerAngles.y, turnAmount);
                 GetPixelFromMap(pixelColor, spawnPosition, w, h, spawnPosition);
             }
         }
@@ -86,16 +86,16 @@ public class DungeonManager : MonoBehaviour
                 blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, true, worldPos, this);
                 return;
             case ObjectType.Undestructable:
-                int randomRotation2 = Random.Range(0, 4);
-                Vector3 randomRotationVector2 = Vector3.zero;
-                switch (randomRotation2)
-                {
-                    case 0: randomRotationVector2 = Vector3.zero; break;
-                    case 1: randomRotationVector2 = Vector3.up * 90; break;
-                    case 2: randomRotationVector2 = Vector3.up * 180; break;
-                    case 3: randomRotationVector2 = Vector3.up * 270; break;
-                }
-                UndestructableBase g = Instantiate(unbreakablePrefab, spawnPosition, Quaternion.Euler(randomRotationVector2));
+                // int randomRotation2 = Random.Range(0, 4);
+                // Vector3 randomRotationVector2 = Vector3.zero;
+                // switch (randomRotation2)
+                // {
+                //     case 0: randomRotationVector2 = Vector3.zero; break;
+                //     case 1: randomRotationVector2 = Vector3.up * 90; break;
+                //     case 2: randomRotationVector2 = Vector3.up * 180; break;
+                //     case 3: randomRotationVector2 = Vector3.up * 270; break;
+                // }
+                UndestructableBase g = Instantiate(unbreakablePrefab, spawnPosition, Quaternion.identity/*Quaternion.Euler(randomRotationVector2)*/);
                 g.transform.parent = transform;
                 break;
             case ObjectType.Destructable:

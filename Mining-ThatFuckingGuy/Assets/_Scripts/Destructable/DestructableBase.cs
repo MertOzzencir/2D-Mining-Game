@@ -21,19 +21,19 @@ public abstract class DestructableBase : MonoBehaviour
     public virtual void CheckHealth(float damage, out bool isDead, Backpack dirtTarget)
     {
         isDead = false;
-        if (dirtTarget.IsEmpty())
-        {
 
-            ParticleBase p = Instantiate(data.DirtParticleVFX);
-            p.PlayAnimation(transform.position, dirtTarget.transform, damage >= CurrentHealth ? CurrentHealth : damage, dirtTarget.AddDirt);
-
-        }
         CurrentHealth -= damage;
 
 
         if (CurrentHealth <= 0)
         {
             isDead = true;
+            if (dirtTarget.IsEmpty())
+            {
+                ParticleBase p = Instantiate(data.DirtParticleVFX);
+                p.PlayAnimation(transform.position, dirtTarget.transform, data.DirtValue, dirtTarget.AddDirt);
+
+            }
             OnDeath?.Invoke(this);
             Destroy(gameObject);
         }

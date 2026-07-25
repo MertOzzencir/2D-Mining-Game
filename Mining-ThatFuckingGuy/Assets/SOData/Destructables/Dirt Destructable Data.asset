@@ -15,3 +15,4 @@ MonoBehaviour:
   Prefab: {fileID: 3843962706344828633, guid: 307f5c38088d8e545bd2c6fda74881d7, type: 3}
   MaxHealth: 5
   DirtParticleVFX: {fileID: 1846073726875582058, guid: c8ebcd58cde259f4ead7a835f81d69e6, type: 3}
+  DirtValue: 1

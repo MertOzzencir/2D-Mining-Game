@@ -6,4 +6,5 @@ public class DestructableSO : ScriptableObject
     public DestructableBase Prefab;
     public float MaxHealth;
     public ParticleBase DirtParticleVFX;
+    public float DirtValue;
 }
