@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 
 public class ParticleBase : MonoBehaviour
@@ -9,16 +8,23 @@ public class ParticleBase : MonoBehaviour
     [SerializeField] private float duration = 0.6f;
     [SerializeField] private float sCurveHeight = 1.5f;
     [SerializeField] private float scaleMultiplierMax;
-    public void PlayAnimation(Vector3 startPos, Transform endPos, float dirtAmount, Action<float, ParticleBase> currentEvent)
+
+    private GenericObjectPool<ParticleBase> pool;
+
+    public void SetPool(GenericObjectPool<ParticleBase> sourcePool)
+    {
+        pool = sourcePool;
+    }
+
+    public void PlayAnimation(Vector3 startPos, Transform endPos, float dirtAmount, Action<float> currentEvent)
     {
         transform.localScale = UnityEngine.Random.Range(1, scaleMultiplierMax) * Vector3.one;
         transform.eulerAngles = new Vector3(UnityEngine.Random.Range(0, 180), UnityEngine.Random.Range(0, 180), UnityEngine.Random.Range(0, 180));
         StartCoroutine(CollectRoutine(startPos, endPos, dirtAmount, currentEvent));
     }
-    private IEnumerator CollectRoutine(Vector3 start, Transform end, float dirtAmount, Action<float, ParticleBase> currentEvent)
+
+    private IEnumerator CollectRoutine(Vector3 start, Transform end, float dirtAmount, Action<float> currentEvent)
     {
-
-
         float elapsed = 0f;
         start += Vector3.right;
         int directionMultiplier = transform.position.y - end.transform.position.y > 0 ? -1 : 1;
@@ -38,8 +44,12 @@ public class ParticleBase : MonoBehaviour
         }
 
         transform.position = end.position;
-        currentEvent?.Invoke(dirtAmount, this);
-        gameObject.SetActive(false);
+        currentEvent?.Invoke(dirtAmount); // sadece SAYIYI güncellemek için çağrılıyor artık
+
+        if (pool != null)
+            pool.Release(this); // BU BACAK bitti, particle HEMEN geri dönüyor
+        else
+            gameObject.SetActive(false);
     }
 
     private Vector3 CubicBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
@@ -51,4 +61,3 @@ public class ParticleBase : MonoBehaviour
              + (t * t * t) * p3;
     }
 }
-

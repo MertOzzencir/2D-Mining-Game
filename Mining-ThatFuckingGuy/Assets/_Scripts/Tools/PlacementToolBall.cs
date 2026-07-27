@@ -8,7 +8,6 @@ public class PlacementToolBall : MonoBehaviour
     private Vector3 currentDirection;
 
 
-    private static PlayerController player => FindAnyObjectByType<PlayerController>();
 
     void Update()
     {
@@ -20,7 +19,7 @@ public class PlacementToolBall : MonoBehaviour
             bool changeDirection = false;
             if (hit.transform.TryGetComponent(out DestructableBase destruct))
             {
-                destruct.Destruct(data.Damage, out changeDirection, player.GetBackpack());
+                destruct.Destruct(data.Damage, out changeDirection);
             }
 
             if (changeDirection && useSecondVersion) return;

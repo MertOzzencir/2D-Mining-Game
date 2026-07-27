@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MiningTool : ToolBase
@@ -40,7 +38,7 @@ public class MiningTool : ToolBase
                 {
                     if (timer > stats[UpgradeType.ToolCooldown])
                     {
-                        d.Destruct(stats[UpgradeType.ToolDamage], out _, Player.GetBackpack());
+                        d.Destruct(stats[UpgradeType.ToolDamage], out _);
                         timer = 0;
                     }
                 }
@@ -66,23 +64,16 @@ public class MiningTool : ToolBase
                 Vector3 dropPos = currentManager.instancedDropRenderer.GetDropPosition(a.DropType, a.DropIndex);
                 currentManager.instancedDropRenderer.RemoveDrop(a.DropType, a.DropIndex);
 
-                currentManager.instancedDropRenderer.TryGetMeshAndMaterial(a.DropType, out Mesh mesh, out Material material);
-
-                GameObject drop = new GameObject("CollectProxy");
-                drop.transform.position = dropPos;
-                drop.AddComponent<MeshFilter>().sharedMesh = mesh;
-                drop.AddComponent<MeshRenderer>().sharedMaterial = material;
-                StartCoroutine(CollectAnimation(drop.transform, dropPos, Mathf.Clamp(Vector3.Distance(transform.position, dropPos), 0f, data.CollectAnimationTimer)));
+                Transform proxy = currentManager.CheckoutDropProxy(a.DropType, dropPos);
+                float duration = Mathf.Clamp(Vector3.Distance(transform.position, dropPos), 0f, data.CollectAnimationTimer);
+                StartCoroutine(CollectAnimation(a.DropType, currentManager, proxy, dropPos, duration));
             }
             currentData.DropsOnBlock.Clear();
         }
-
-
     }
 
-    private IEnumerator CollectAnimation(Transform drop, Vector3 startPosition, float animationDuration)
+    private IEnumerator CollectAnimation(DropType type, DungeonManager manager, Transform drop, Vector3 startPosition, float animationDuration)
     {
-
         float duration = animationDuration;
         float elapsed = 0f;
 
@@ -99,20 +90,17 @@ public class MiningTool : ToolBase
             float t = Mathf.Clamp01(elapsed / duration);
 
             Vector3 arced = Vector3.Slerp(startRelative, endRelative, t);
-            drop.transform.position = center + arced;
+            drop.position = center + arced;
 
             yield return null;
         }
 
-        drop.transform.parent = storagedPlacement;
-        drop.gameObject.SetActive(false);
-        drop.transform.localPosition = Vector3.zero;
-        drop.transform.localEulerAngles = Vector3.zero;
+        manager.ReturnDropProxy(type, drop);
     }
+
     public override void OnDisable()
     {
         base.OnDisable();
-
     }
 
     public override void UpgradeSelf(UpgradeData upgradeData)

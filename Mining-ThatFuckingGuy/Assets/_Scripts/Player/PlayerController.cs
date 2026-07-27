@@ -6,7 +6,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private int particlesPerFrame = 5; 
+    [SerializeField] private int particlesPerFrame = 5;
+    [SerializeField] private float dirtPerParticle = 10f;
+    [SerializeField] private int emptyParticlePrewarmCountPerType = 4;
     [SerializeField] private CinemachineCamera cameraMain;
     [SerializeField] private LayerMask generalCollider;
     [SerializeField] private float speed;
@@ -37,6 +39,9 @@ public class PlayerController : MonoBehaviour
     private PlayerAnimationController animationController;
     private ToolController toolController;
 
+    private Dictionary<ParticleBase, GenericObjectPool<ParticleBase>> emptyParticlePools = new();
+    private Dictionary<ParticleBase, float> collectedDirtByType = new();
+
     void Awake()
     {
         inputM = FindAnyObjectByType<InputManager>();
@@ -44,7 +49,6 @@ public class PlayerController : MonoBehaviour
         animationController = GetComponent<PlayerAnimationController>();
         toolController = GetComponent<ToolController>();
     }
-
 
     void Update()
     {
@@ -71,7 +75,6 @@ public class PlayerController : MonoBehaviour
     {
         if (jumpState)
         {
-
             float remaining = targetJumpPosition.y - transform.position.y;
             if (remaining <= SKIN)
             {
@@ -84,7 +87,6 @@ public class PlayerController : MonoBehaviour
             float desired = Mathf.Min(verticalVelocity * Time.deltaTime * jumpMultiplier, remaining);
             float allowed = SweepMove(Vector3.up, desired, out bool blocked);
             transform.position += Vector3.up * allowed;
-            Debug.Log("Jumping");
             if (blocked)
             {
                 jumpState = false;
@@ -93,7 +95,6 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        Debug.Log("Falling");
         verticalVelocity += Physics.gravity.y / gravityDecreaseMultiplier * Time.deltaTime * gravityVelocitySpeed;
         verticalVelocity = Mathf.Max(verticalVelocity, gravityTerminalVelocity);
 
@@ -115,7 +116,6 @@ public class PlayerController : MonoBehaviour
         transform.position += direction * allowed * backpack.GetSpeedReduceMultiplier();
     }
 
-
     private float SweepMove(Vector3 direction, float desiredDistance, out bool blocked)
     {
         if (desiredDistance <= 0f) { blocked = false; return 0f; }
@@ -135,11 +135,13 @@ public class PlayerController : MonoBehaviour
         blocked = false;
         return desiredDistance;
     }
+
     public float GetAnyDirectionVelocity()
     {
         if (inputM.MovementVectorNormalized() == Vector2.zero) return 0;
         return 1;
     }
+
     private bool IsGrounded()
     {
         float radius = c.radius;
@@ -166,47 +168,99 @@ public class PlayerController : MonoBehaviour
             startJumpPosition = transform.position;
         }
     }
+
     public Backpack GetBackpack()
     {
         return backpack;
     }
+
     public Transform GetVisual()
     {
         return visual;
     }
+
     public CinemachineCamera GetCamera()
     {
         return cameraMain;
     }
+
     public void DisableRequests()
     {
         animationController.BeforeDisable();
         toolController.enabled = false;
     }
+
+    private GenericObjectPool<ParticleBase> GetOrCreateEmptyParticlePool(ParticleBase prefab)
+    {
+        if (!emptyParticlePools.TryGetValue(prefab, out var pool))
+        {
+            pool = new GenericObjectPool<ParticleBase>(
+                factory: () => Instantiate(prefab, transform),
+                prewarmCount: emptyParticlePrewarmCountPerType
+            );
+            emptyParticlePools[prefab] = pool;
+        }
+        return pool;
+    }
+
+    // DungeonManager, bir dirt particle backpack'e ULAŞTIĞINDA bunu çağırıyor
+    public void AddCollectedDirt(ParticleBase type, float amount)
+    {
+        if (collectedDirtByType.ContainsKey(type))
+            collectedDirtByType[type] += amount;
+        else
+            collectedDirtByType[type] = amount;
+    }
+
     public void EmptyAllBackpackDirt(RobotInside robotStoraged)
     {
-        if (backpack.CurrentDirtAmount() <= 0) return;
+        float totalDirt = backpack.CurrentDirtAmount();
+        if (totalDirt <= 0) return;
 
-        List<ParticleBase> particlesCopy = new List<ParticleBase>(backpack.GetParticles());
-        float averageDirtAmount = backpack.CurrentDirtAmount() / (float)backpack.GetParticles().Count;
+        List<KeyValuePair<ParticleBase, float>> breakdown = new(collectedDirtByType);
 
         backpack.ResetDirtInStoraged();
-        backpack.ResetParticles();
-        StartCoroutine(EmptyDirtAnimation(particlesCopy, robotStoraged.transform, averageDirtAmount, robotStoraged.SetDirtStorage));
-    }
-    IEnumerator EmptyDirtAnimation(List<ParticleBase> particlesCopy, Transform robotStoraged, float avarageDirtAmount, Action<float, ParticleBase> Invoke)
-    {
-        for (int i = 0; i < particlesCopy.Count; i++)
-        {
-            var a = particlesCopy[i];
-            a.transform.parent = null;
-            a.gameObject.SetActive(true);
-            a.PlayAnimation(backpack.transform.position, robotStoraged.transform, avarageDirtAmount, Invoke);
+        collectedDirtByType.Clear();
 
-            if ((i + 1) % particlesPerFrame == 0)
+        StartCoroutine(EmptyDirtAnimation(breakdown, robotStoraged.transform, robotStoraged.SetDirtStorage));
+    }
+
+    private IEnumerator EmptyDirtAnimation(List<KeyValuePair<ParticleBase, float>> breakdown, Transform robotStoraged, Action<float> onArrive)
+    {
+        int spawned = 0;
+
+        foreach (var kvp in breakdown)
+        {
+            ParticleBase type = kvp.Key;
+            float amount = kvp.Value;
+
+            GenericObjectPool<ParticleBase> pool = GetOrCreateEmptyParticlePool(type); // artık lazy, warning'e gerek yok
+
+            int particleCount = Mathf.Max(1, Mathf.CeilToInt(amount / dirtPerParticle));
+            float perParticleAmount = amount / particleCount;
+
+            for (int i = 0; i < particleCount; i++)
             {
-                yield return null; 
+                ParticleBase p = pool.Get();
+                p.SetPool(pool);
+                p.transform.position = backpack.transform.position;
+                p.PlayAnimation(backpack.transform.position, robotStoraged.transform, perParticleAmount, onArrive);
+
+                spawned++;
+                if (spawned % particlesPerFrame == 0)
+                {
+                    yield return null;
+                }
             }
+        }
+    }
+
+    [ContextMenu("PlayerBackPack VFX Debug")]
+    public void DebugBackPack()
+    {
+        foreach(var a in collectedDirtByType)
+        {
+            Debug.Log(a + "Key: " + "Value -> " + a.Value);
         }
     }
     void OnEnable()
@@ -215,9 +269,9 @@ public class PlayerController : MonoBehaviour
         toolController.enabled = true;
         InputManager.OnJump += Jump;
     }
+
     void OnDisable()
     {
         InputManager.OnJump -= Jump;
-
     }
 }

@@ -27,17 +27,12 @@ public class RobotInside : MonoBehaviour
             OnPlayerEnterState?.Invoke(false, player);
         }
     }
-    public void SetDirtStorage(float amount, ParticleBase p)
+    public void SetDirtStorage(float amount)
     {
-        if (currentDirtStoraged >= maxDirtStorageAmount)
-        {
-            Destroy(p.gameObject);
-            return;
-        }
+
         if (currentDirtStoraged + amount <= maxDirtStorageAmount)
         {
             currentDirtStoraged += amount;
-            p.transform.parent = transform;
         }
         else
             currentDirtStoraged = maxDirtStorageAmount;

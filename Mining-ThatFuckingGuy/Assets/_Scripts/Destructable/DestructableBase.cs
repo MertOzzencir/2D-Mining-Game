@@ -7,37 +7,30 @@ public abstract class DestructableBase : MonoBehaviour
     [SerializeField] private DestructableSO data;
 
     public float CurrentHealth { get; private set; }
-
+    public DestructableSO Data => data; 
 
     void Awake()
     {
         CurrentHealth = data.MaxHealth;
     }
-    public virtual void Destruct(float damage, out bool isDead, Backpack dirtTarget)
+
+    public virtual void Destruct(float damage, out bool isDead)
     {
         isDead = false;
-        CheckHealth(damage, out isDead, dirtTarget);
+        CheckHealth(damage, out isDead);
     }
-    public virtual void CheckHealth(float damage, out bool isDead, Backpack dirtTarget)
+
+    public virtual void CheckHealth(float damage, out bool isDead)
     {
         isDead = false;
-
         CurrentHealth -= damage;
-
 
         if (CurrentHealth <= 0)
         {
             isDead = true;
-            if (dirtTarget.IsEmpty())
-            {
-                ParticleBase p = Instantiate(data.DirtParticleVFX);
-                p.PlayAnimation(transform.position, dirtTarget.transform, data.DirtValue, dirtTarget.AddDirt);
-
-            }
             OnDeath?.Invoke(this);
             Destroy(gameObject);
         }
-
     }
 
     public void OnSpawned()
@@ -52,6 +45,5 @@ public abstract class DestructableBase : MonoBehaviour
             case 3: randomRotationVector = Vector3.up * 270; break;
         }
         transform.rotation = Quaternion.Euler(randomRotationVector);
-
     }
 }
