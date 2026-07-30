@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,11 +10,15 @@ public class DungeonManager : MonoBehaviour
     [SerializeField] private GameObject dropPrefab;
     [SerializeField] private int proxyPrewarmCountPerType = 5;
     [SerializeField] private int dirtParticlePrewarmCount = 10;
-
+    [SerializeField] private int bouncePrewarmCountPerType = 3;
+    [SerializeField] private float bounceDuration = 0.15f;
+    [SerializeField] private float bounceScaleMultiplier = 1.2f;
+    [SerializeField] private GameObject wallPrefab;
     private BlockData[,] blocks;
     public InstancedDropRenderer instancedDropRenderer;
     private Dictionary<DropType, GenericObjectPool<Transform>> dropProxyPools = new();
     private Dictionary<ParticleBase, GenericObjectPool<ParticleBase>> dirtParticlePools = new();
+    private Dictionary<DestructableSO, GenericObjectPool<Transform>> bouncePools = new();
     private static PlayerController player;
 
     void Awake()
@@ -24,6 +29,25 @@ public class DungeonManager : MonoBehaviour
         CreateDungeon();
     }
 
+    private GenericObjectPool<Transform> GetOrCreateBouncePool(DestructableSO type, Mesh mesh, Material material)
+    {
+        if (!bouncePools.TryGetValue(type, out var pool))
+        {
+            pool = new GenericObjectPool<Transform>(
+                factory: () =>
+                {
+                    GameObject go = new GameObject($"BounceProxy_{type.name}");
+                    go.AddComponent<MeshFilter>().sharedMesh = mesh;
+                    go.AddComponent<MeshRenderer>().sharedMaterial = material;
+                    go.transform.parent = transform;
+                    return go.transform;
+                },
+                prewarmCount: bouncePrewarmCountPerType
+            );
+            bouncePools[type] = pool;
+        }
+        return pool;
+    }
 
     private GenericObjectPool<Transform> GetOrCreateProxyPool(DropType type)
     {
@@ -67,7 +91,6 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
-    // ---------------- Dirt Particle Pooling ----------------
 
     private GenericObjectPool<ParticleBase> GetOrCreateDirtPool(ParticleBase prefab)
     {
@@ -82,7 +105,6 @@ public class DungeonManager : MonoBehaviour
         return pool;
     }
 
-    // ---------------- Dungeon Oluşturma ----------------
 
     private void CreateDungeon()
     {
@@ -95,6 +117,16 @@ public class DungeonManager : MonoBehaviour
             {
                 Color pixelColor = pixels[h * width + w];
                 Vector3 spawnPosition = transform.position + new Vector3(0, h, w);
+
+                GameObject wall = Instantiate(wallPrefab);
+                wall.transform.position = spawnPosition - Vector3.right;
+                Quaternion lookRotation = Quaternion.LookRotation(Vector3.right);
+                wall.transform.rotation = lookRotation;
+                int randomTurn = Random.Range(0, 4);
+                float turnAmount = 90 * randomTurn;
+                wall.transform.parent = transform;
+                wall.transform.localEulerAngles = new Vector3(wall.transform.eulerAngles.x, wall.transform.eulerAngles.y, turnAmount);
+
                 GetPixelFromMap(pixelColor, spawnPosition, w, h, spawnPosition);
             }
         }
@@ -103,9 +135,15 @@ public class DungeonManager : MonoBehaviour
                 blocks[w, h].CalculateCorners(this);
     }
 
-    private void HandleDeathDestructable(DestructableBase breakableT)
+    private void HandleHitDestructable(DestructableBase hitObject, bool isDead)
     {
-        BlockData ownData = blocks[(int)breakableT.transform.position.z - (int)transform.position.z, (int)breakableT.transform.position.y - (int)transform.position.y];
+        if (!isDead)
+        {
+            PlayBounceAnimation(hitObject);
+            return;
+        }
+
+        BlockData ownData = blocks[(int)hitObject.transform.position.z - (int)transform.position.z, (int)hitObject.transform.position.y - (int)transform.position.y];
         ownData.IsEmpty = true;
         ownData.CalculateCorners(this);
         RecalculateNeighborCorners(ownData);
@@ -124,29 +162,28 @@ public class DungeonManager : MonoBehaviour
             }
         }
 
-        breakableT.OnDeath -= HandleDeathDestructable;
+        hitObject.OnHit -= HandleHitDestructable;
 
-        // Dirt spawn kararı ve mekanizması artık burada, DestructableBase'in hiç haberi yok
         Backpack backpack = player.GetBackpack();
-        if (backpack.IsEmpty() && breakableT.Data.DirtParticleVFX != null)
+        if (backpack.IsEmpty() && hitObject.Data.DirtParticleVFX != null)
         {
-            ParticleBase vfxType = breakableT.Data.DirtParticleVFX;
-            GenericObjectPool<ParticleBase> pool = GetOrCreateDirtPool(breakableT.Data.DirtParticleVFX);
-            ParticleBase p = pool.Get();
-            p.SetPool(pool);
-            p.PlayAnimation(breakableT.transform.position, backpack.transform, breakableT.Data.DirtValue, (amount) =>
-      {
-          backpack.AddDirt(amount);
-          player.AddCollectedDirt(vfxType, amount);
-      });
+            ParticleBase vfxType = hitObject.Data.DirtParticleVFX;
+            GenericObjectPool<ParticleBase> dirtPool = GetOrCreateDirtPool(vfxType);
+            ParticleBase p = dirtPool.Get();
+            p.SetPool(dirtPool);
+            p.PlayAnimation(hitObject.transform.position, backpack.transform, hitObject.Data.DirtValue, (amount) =>
+            {
+                backpack.AddDirt(amount);
+                player.AddCollectedDirt(vfxType, amount);
+            });
         }
-        if (breakableT is DropableDestructable dropable)
+
+        if (hitObject is DropableDestructable dropable)
         {
-            Vector3 spawnPos = breakableT.transform.position;
+            Vector3 spawnPos = hitObject.transform.position;
             instancedDropRenderer.RegisterDrop(dropable.DropData, dropable.DropData.Material, spawnPos);
         }
     }
-
     private void GetPixelFromMap(Color mapColor, Vector3 spawnPosition, int zIndex, int yIndex, Vector3 worldPos)
     {
         switch (GetTypeFromPixel(mapColor))
@@ -155,35 +192,35 @@ public class DungeonManager : MonoBehaviour
                 blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, true, worldPos, this);
                 return;
             case ObjectType.Undestructable:
-                int randomRotation2 = Random.Range(0, 4);
-                Vector3 randomRotationVector2 = Vector3.zero;
-                switch (randomRotation2)
-                {
-                    case 0: randomRotationVector2 = Vector3.zero; break;
-                    case 1: randomRotationVector2 = Vector3.up * 90; break;
-                    case 2: randomRotationVector2 = Vector3.up * 180; break;
-                    case 3: randomRotationVector2 = Vector3.up * 270; break;
-                }
-                UndestructableBase g = Instantiate(unbreakablePrefab, spawnPosition, Quaternion.Euler(randomRotationVector2));
+                // int randomRotation2 = Random.Range(0, 4);
+                // Vector3 randomRotationVector2 = Vector3.zero;
+                // switch (randomRotation2)
+                // {
+                //     case 0: randomRotationVector2 = Vector3.zero; break;
+                //     case 1: randomRotationVector2 = Vector3.up * 90; break;
+                //     case 2: randomRotationVector2 = Vector3.up * 180; break;
+                //     case 3: randomRotationVector2 = Vector3.up * 270; break;
+                // }
+                UndestructableBase g = Instantiate(unbreakablePrefab, spawnPosition, Quaternion.identity);
                 g.transform.parent = transform;
                 break;
             case ObjectType.Destructable:
                 DestructableBase g2 = Instantiate(destructableData[0].Prefab, spawnPosition, Quaternion.identity);
                 g2.OnSpawned();
                 g2.transform.parent = transform;
-                g2.OnDeath += HandleDeathDestructable;
+                g2.OnHit += HandleHitDestructable;
                 break;
             case ObjectType.Dirt:
                 DestructableBase dirt = Instantiate(destructableData[1].Prefab, spawnPosition, Quaternion.identity);
                 dirt.OnSpawned();
                 dirt.transform.parent = transform;
-                dirt.OnDeath += HandleDeathDestructable;
+                dirt.OnHit += HandleHitDestructable;
                 break;
             case ObjectType.DirtWithGrass:
                 DestructableBase dirtGrass = Instantiate(destructableData[2].Prefab, spawnPosition, Quaternion.identity);
                 dirtGrass.OnSpawned();
                 dirtGrass.transform.parent = transform;
-                dirtGrass.OnDeath += HandleDeathDestructable;
+                dirtGrass.OnHit += HandleHitDestructable;
                 break;
         }
         blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos, this);
@@ -256,6 +293,36 @@ public class DungeonManager : MonoBehaviour
     public int DungeonHeight()
     {
         return dungeonMap.height;
+    }
+    private void PlayBounceAnimation(DestructableBase hitObject)
+    {
+        GenericObjectPool<Transform> pool = GetOrCreateBouncePool(hitObject.Data, hitObject.Data.VisualMesh.sharedMesh, hitObject.Data.VisualMaterial);
+        Transform proxy = pool.Get();
+        proxy.SetPositionAndRotation(hitObject.transform.position, hitObject.transform.rotation);
+        proxy.localScale = Vector3.one;
+
+        hitObject.SetVisualVisible(false);
+        StartCoroutine(BounceRoutine(proxy, pool, hitObject));
+    }
+
+    private IEnumerator BounceRoutine(Transform proxy, GenericObjectPool<Transform> pool, DestructableBase hitObject)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < bounceDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / bounceDuration;
+            float scaleFactor = 1f + Mathf.Sin(t * Mathf.PI) * (bounceScaleMultiplier - 1f);
+            proxy.localScale = Vector3.one * scaleFactor;
+            yield return null;
+        }
+
+        proxy.localScale = Vector3.one;
+        pool.Release(proxy);
+
+        if (hitObject != null) // animasyon sürerken obje başka bir vuruşla ölmüş olabilir
+            hitObject.SetVisualVisible(true);
     }
 
     [ContextMenu("Debug")]

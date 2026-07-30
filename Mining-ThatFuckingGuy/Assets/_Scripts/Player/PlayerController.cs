@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CinemachineCamera cameraMain;
     [SerializeField] private LayerMask generalCollider;
     [SerializeField] private float speed;
+    [SerializeField] private ParticleSystem movementParticle;
     [Header("Gravity")]
     [SerializeField] private float gravityDecreaseMultiplier;
     [SerializeField] private float gravityVelocitySpeed;
@@ -53,7 +54,11 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Vector2 input = inputM.MovementVectorNormalized();
-        if (IsGrounded()) lastTimeGrounded = Time.time;
+        if (IsGrounded() && !jumpState)
+        {
+            animationController.SetBool("jump", false);
+            lastTimeGrounded = Time.time;
+        }
         HandleVertical();
         HandleHorizontal(input);
         HandleVisual(input);
@@ -103,10 +108,24 @@ public class PlayerController : MonoBehaviour
         transform.position += Vector3.down * fallAllowed;
         if (grounded) verticalVelocity = 0;
     }
-
+    private bool wasMoving = false;
     private void HandleHorizontal(Vector2 input)
     {
-        if (input.x == 0) return;
+        bool isMoving = input.x != 0;
+        bool grounded = IsGrounded();
+        bool shouldPlayParticle = isMoving && grounded;
+
+        if (shouldPlayParticle != wasMoving)
+        {
+            if (shouldPlayParticle)
+                movementParticle.Play();
+            else
+                movementParticle.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+
+            wasMoving = shouldPlayParticle;
+        }
+
+        if (!isMoving) return;
 
         Vector3 direction = input.x > 0 ? transform.forward : -transform.forward;
         float desired = Mathf.Abs(input.x) * speed * Time.deltaTime;
@@ -115,7 +134,6 @@ public class PlayerController : MonoBehaviour
         horizontalVelocity = allowed;
         transform.position += direction * allowed * backpack.GetSpeedReduceMultiplier();
     }
-
     private float SweepMove(Vector3 direction, float desiredDistance, out bool blocked)
     {
         if (desiredDistance <= 0f) { blocked = false; return 0f; }
@@ -138,12 +156,12 @@ public class PlayerController : MonoBehaviour
 
     public float GetAnyDirectionVelocity()
     {
-        if (inputM.MovementVectorNormalized() == Vector2.zero) return 0;
-        return 1;
+        return inputM.MovementVectorNormalized().x == 0 ? 0 : 1;
     }
 
     private bool IsGrounded()
     {
+
         float radius = c.radius;
         float halfHeight = Mathf.Max(c.height / 2f - radius, 0f);
         Vector3 center = transform.position + c.center;
@@ -162,6 +180,9 @@ public class PlayerController : MonoBehaviour
     {
         if (IsGrounded() || Time.time - lastTimeGrounded <= timeAirTimer)
         {
+            animationController.SetBool("jump", true);
+            movementParticle.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            wasMoving = false;
             verticalVelocity = CalculateJumpPower();
             jumpState = true;
             targetJumpPosition = transform.position + Vector3.up * jumpHeight;
@@ -258,7 +279,7 @@ public class PlayerController : MonoBehaviour
     [ContextMenu("PlayerBackPack VFX Debug")]
     public void DebugBackPack()
     {
-        foreach(var a in collectedDirtByType)
+        foreach (var a in collectedDirtByType)
         {
             Debug.Log(a + "Key: " + "Value -> " + a.Value);
         }

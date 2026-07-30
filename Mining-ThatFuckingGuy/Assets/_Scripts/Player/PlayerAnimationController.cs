@@ -14,6 +14,11 @@ public class PlayerAnimationController : MonoBehaviour
     {
         anim.SetFloat("velocity", controller.GetAnyDirectionVelocity());
     }
+    public void SetBool(string animationName, bool state)
+    {
+        Debug.Log("Set State");
+        anim.SetBool(animationName,state);
+    }
     public void BeforeDisable()
     {
         StartCoroutine(Disable());

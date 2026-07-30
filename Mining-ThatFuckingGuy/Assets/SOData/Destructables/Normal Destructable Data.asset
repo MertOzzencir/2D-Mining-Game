@@ -16,3 +16,5 @@ MonoBehaviour:
   MaxHealth: 5
   DirtParticleVFX: {fileID: 1846073726875582058, guid: c8ebcd58cde259f4ead7a835f81d69e6, type: 3}
   DirtValue: 1
+  VisualMesh: {fileID: -5754084199372789682, guid: 146e91b2ea986864c83b923e1a149a6b, type: 3}
+  VisualMaterial: {fileID: 2100000, guid: 7fab5f4cf881e1449b93b871082a1365, type: 2}

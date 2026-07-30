@@ -12,5 +12,5 @@ public class DropSO : ScriptableObject
 [Serializable]
 public enum DropType
 {
-    Iron
+    Colorful
 }

@@ -47,6 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NormalDirtDestructable
   data: {fileID: 11400000, guid: a8e613337ae103b4faa082c8ec443905, type: 2}
+  visualMeshFilter: {fileID: 9137078370723434294}
+  visualMeshRenderer: {fileID: 6424836869761072124}
 --- !u!65 &4479474571898419969
 BoxCollider:
   m_ObjectHideFlags: 0

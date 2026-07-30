@@ -3,11 +3,16 @@ using UnityEngine;
 
 public abstract class DestructableBase : MonoBehaviour
 {
-    public event Action<DestructableBase> OnDeath;
+    public event Action<DestructableBase, bool> OnHit; // bool = isDead
+
     [SerializeField] private DestructableSO data;
+    [SerializeField] private MeshFilter visualMeshFilter;
+    [SerializeField] private MeshRenderer visualMeshRenderer;
 
     public float CurrentHealth { get; private set; }
-    public DestructableSO Data => data; 
+    public DestructableSO Data => data;
+    public Mesh VisualMesh => visualMeshFilter.sharedMesh;
+    public Material VisualMaterial => visualMeshRenderer.sharedMaterial;
 
     void Awake()
     {
@@ -28,9 +33,18 @@ public abstract class DestructableBase : MonoBehaviour
         if (CurrentHealth <= 0)
         {
             isDead = true;
-            OnDeath?.Invoke(this);
+            OnHit?.Invoke(this, true);
             Destroy(gameObject);
         }
+        else
+        {
+            OnHit?.Invoke(this, false);
+        }
+    }
+
+    public void SetVisualVisible(bool visible)
+    {
+        visualMeshRenderer.enabled = visible;
     }
 
     public void OnSpawned()

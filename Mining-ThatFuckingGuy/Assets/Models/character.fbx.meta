@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 46d2669b7c399a747bc11743bc7f6d31
+guid: 742d578c39eccfa49beb2371a259264a
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -7,8 +7,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Material
-    second: {fileID: 2100000, guid: e32ce1996958eac46b64304423defb53, type: 2}
+      name: Material.001
+    second: {fileID: 2100000, guid: 39d659704a9cd5840b69fe6fa57cb8be, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -40,7 +40,7 @@ ModelImporter:
       takeName: Armature|Idle
       internalID: -8945691123924629249
       firstFrame: 0
-      lastFrame: 31
+      lastFrame: 29
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -65,11 +65,40 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature|Walk
-      takeName: Armature|Walk
-      internalID: 8349542763059015795
+      name: Armature|Jump
+      takeName: Armature|Jump
+      internalID: 1079665108409675491
       firstFrame: 0
-      lastFrame: 21
+      lastFrame: 8
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Armature|WalkAnimation
+      takeName: Armature|WalkAnimation
+      internalID: 2444117930992513123
+      firstFrame: 0
+      lastFrame: 18
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
