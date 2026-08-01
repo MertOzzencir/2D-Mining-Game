@@ -15,3 +15,5 @@ MonoBehaviour:
   Mesh: {fileID: 2506578005322757104, guid: bbab6c46945619740b88521afc848a52, type: 3}
   Material: {fileID: 2100000, guid: 3d2ccf512d643ab429a138f3ea8102c2, type: 2}
   DropType: 0
+  UI_Image: {fileID: 21300000, guid: ee8ce5cd9c0883f4182b5cfd43cfd7fe, type: 3}
+  UI_Name: Colorful

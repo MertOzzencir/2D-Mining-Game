@@ -21,7 +21,8 @@ public class InstancedDropRenderer : MonoBehaviour
             batch = new DropBatch
             {
                 Mesh = data.Mesh,
-                RenderParams = new RenderParams(material)
+                RenderParams = new RenderParams(material),
+                Data = data // YENİ - tam SO referansını saklıyoruz
             };
             batches[data.DropType] = batch;
         }
@@ -67,13 +68,13 @@ public class InstancedDropRenderer : MonoBehaviour
 
                         if (Mathf.Abs(newY - batch.TargetY[i]) < 0.01f)
                         {
-                            SettleDrop(batch, type, i);
+                            SettleDrop(batch, batch.Data, i);
                         }
                     }
                 }
                 else
                 {
-                    batch.BobTimer[i] += Time.deltaTime; // kendi timer'ı, herkesle paylaşılmıyor
+                    batch.BobTimer[i] += Time.deltaTime;
 
                     InstanceData grounded = batch.Instances[i];
                     float bob = Mathf.Sin(batch.BobTimer[i]) / 4f;
@@ -123,7 +124,7 @@ public class InstancedDropRenderer : MonoBehaviour
         batch.HasTarget[i] = true;
     }
 
-    private void SettleDrop(DropBatch batch, DropType type, int i)
+    private void SettleDrop(DropBatch batch, DropSO type, int i)
     {
         BlockData restBlock = batch.PendingBlock[i];
         Vector3 restPosition = restBlock.WorldPosition;
@@ -136,7 +137,7 @@ public class InstancedDropRenderer : MonoBehaviour
 
         batch.BaseY[i] = restPosition.y;
         batch.Grounded[i] = true;
-        batch.BobTimer[i] = 0f; // sıfırdan başlasın, sıçrama olmasın
+        batch.BobTimer[i] = 0f;
 
         restBlock.DropsOnBlock.Add(new DropReference(type, i));
     }
@@ -160,6 +161,18 @@ public class InstancedDropRenderer : MonoBehaviour
         return false;
     }
 
+    // YENİ - UI için Sprite/isim bilgisine buradan ulaşıyorsun
+    public bool TryGetDropData(DropType type, out DropSO data)
+    {
+        if (batches.TryGetValue(type, out DropBatch batch))
+        {
+            data = batch.Data;
+            return true;
+        }
+        data = null;
+        return false;
+    }
+
     public void RemoveDrop(DropType type, int index)
     {
         if (!batches.TryGetValue(type, out DropBatch batch)) return;
@@ -175,6 +188,7 @@ public class DropBatch
 {
     public RenderParams RenderParams;
     public Mesh Mesh;
+    public DropSO Data; // YENİ - tam SO referansı, UI_Image/UI_Name buradan geliyor
     public List<InstanceData> Instances = new();
     public List<float> BaseY = new();
     public List<bool> Grounded = new();
@@ -182,7 +196,7 @@ public class DropBatch
     public List<bool> HasTarget = new();
     public List<float> TargetY = new();
     public List<BlockData> PendingBlock = new();
-    public List<float> BobTimer = new(); 
+    public List<float> BobTimer = new();
 }
 
 public struct InstanceData

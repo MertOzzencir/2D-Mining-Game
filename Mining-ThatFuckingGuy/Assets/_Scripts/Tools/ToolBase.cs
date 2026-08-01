@@ -8,21 +8,25 @@ public abstract class ToolBase : MonoBehaviour
     public PlayerController Player { get; set; }
     public ToolSO Data;
     public bool MainUseState { get; set; }
-    public Dictionary<UpgradeType, float> stats = new();
 
+    public Dictionary<UpgradeType, float> Stats = new Dictionary<UpgradeType, float>();
     public bool AlternativeState { get; set; }
     public virtual void Awake()
     {
         Player = FindAnyObjectByType<PlayerController>();
+
     }
     public virtual void UpdateUse()
     {
         HandleRotation(VisualTransform);
         HandleRotation(AimPositionTransform);
     }
-    public abstract void UpgradeSelf(UpgradeData upgradeData);
 
-
+    public virtual void SetStats()
+    {
+        Stats[UpgradeType.Cooldown] = Data.CooldownTimer;
+        Stats[UpgradeType.Range] = Data.Range;
+    }
     public virtual void MainUse(bool state)
     {
         MainUseState = state;
@@ -73,5 +77,24 @@ public abstract class ToolBase : MonoBehaviour
         InputManager.OnMouseRight -= AlternativeUse;
         InputManager.OnRotate -= InteractUse;
     }
+    public virtual void UpgradeSelf(UpgradeType type, float amount)
+    {
+        switch (type)
+        {
+            case UpgradeType.Cooldown:
+                Stats[UpgradeType.Cooldown] -= amount;
+                break;
+            case UpgradeType.Range:
+                Stats[UpgradeType.Range] += amount;
+                break;
+        }
+    }
+}
 
+public enum UpgradeType
+{
+    Cooldown,
+    Damage,
+    Range,
+    StorageLimit
 }

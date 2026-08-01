@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask generalCollider;
     [SerializeField] private float speed;
     [SerializeField] private ParticleSystem movementParticle;
+    [SerializeField] private ParticleSystem groundedParticle;
     [Header("Gravity")]
     [SerializeField] private float gravityDecreaseMultiplier;
     [SerializeField] private float gravityVelocitySpeed;
@@ -39,7 +40,7 @@ public class PlayerController : MonoBehaviour
     private float lastTimeGrounded;
     private PlayerAnimationController animationController;
     private ToolController toolController;
-
+    private InventoryController inventoryController;
     private Dictionary<ParticleBase, GenericObjectPool<ParticleBase>> emptyParticlePools = new();
     private Dictionary<ParticleBase, float> collectedDirtByType = new();
 
@@ -49,21 +50,35 @@ public class PlayerController : MonoBehaviour
         c = GetComponent<CapsuleCollider>();
         animationController = GetComponent<PlayerAnimationController>();
         toolController = GetComponent<ToolController>();
+        inventoryController = GetComponent<InventoryController>();
     }
+
+    private bool wasGrounded = true;
 
     void Update()
     {
         Vector2 input = inputM.MovementVectorNormalized();
-        if (IsGrounded() && !jumpState)
+        bool grounded = IsGrounded();
+
+        if (grounded && !jumpState)
         {
             animationController.SetBool("jump", false);
             lastTimeGrounded = Time.time;
+
+            if (!wasGrounded)
+            {
+
+                groundedParticle.gameObject.SetActive(true);
+                groundedParticle.Play();
+            }
         }
+
+        wasGrounded = grounded;
+
         HandleVertical();
         HandleHorizontal(input);
         HandleVisual(input);
     }
-
     private void HandleVisual(Vector2 input)
     {
         if (input.x > 0)
@@ -245,6 +260,15 @@ public class PlayerController : MonoBehaviour
 
         StartCoroutine(EmptyDirtAnimation(breakdown, robotStoraged.transform, robotStoraged.SetDirtStorage));
     }
+    public void EmptyAllDropsOnMiningTool()
+    {
+        MiningTool miningTool = toolController.GetMiningTool();
+        foreach (var a in miningTool.DropsOnTool())
+        {
+            inventoryController.AddDrop(a.Key, a.Value);
+        }
+        miningTool.ResetStorage();
+    }
 
     private IEnumerator EmptyDirtAnimation(List<KeyValuePair<ParticleBase, float>> breakdown, Transform robotStoraged, Action<float> onArrive)
     {
@@ -275,7 +299,11 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
+    public void OnEnterRobot()
+    {
+        movementParticle.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        groundedParticle.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+    }
     [ContextMenu("PlayerBackPack VFX Debug")]
     public void DebugBackPack()
     {

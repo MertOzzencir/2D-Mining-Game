@@ -31,13 +31,14 @@ public class BlockData
         CornerIndex[3] = manager.GetEmptyBlockFromWorldPosition(this, 0, 1) ? -1 : 1;
     }
 }
+
 public struct DropReference
 {
-    public DropType DropType;
+    public DropSO Data;
     public int DropIndex;
-    public DropReference(DropType type, int index)
+    public DropReference(DropSO data, int index)
     {
-        DropType = type;
+        Data = data;
         DropIndex = index;
     }
 }

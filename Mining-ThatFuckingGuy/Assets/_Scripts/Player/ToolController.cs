@@ -4,11 +4,17 @@ using UnityEngine;
 public class ToolController : MonoBehaviour
 {
 
+    public static ToolController Instance;
     [SerializeField] private float attackDamage;
     [SerializeField] private Transform toolRotation;
     [SerializeField] private ToolBase[] tools;
 
     private ToolBase CurrentTool;
+    void Awake()
+    {
+        if (Instance == null) Instance = this;
+        ToolsStatsBegin();
+    }
     void Update()
     {
         if (CurrentTool == null) return;
@@ -49,8 +55,25 @@ public class ToolController : MonoBehaviour
     void OnDisable()
     {
         InputManager.OnNumbers -= PickTool;
-        if(CurrentTool == null) return;
+        if (CurrentTool == null) return;
         CurrentTool.DeEquip();
         CurrentTool = null;
+    }
+    public MiningTool GetMiningTool()
+    {
+        MiningTool tool = null;
+        foreach (var a in tools)
+        {
+            if (a is MiningTool)
+                tool = a as MiningTool;
+        }
+        return tool;
+    }
+    private void ToolsStatsBegin()
+    {
+        foreach (var a in tools)
+        {
+            a.SetStats();
+        }
     }
 }

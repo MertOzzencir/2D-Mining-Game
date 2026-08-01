@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using NUnit.Framework.Constraints;
 using UnityEngine;
 
 public class MiningTool : ToolBase
@@ -10,15 +12,9 @@ public class MiningTool : ToolBase
     private Vector3 direction;
     private float timer;
     private MiningToolSO data => Data as MiningToolSO;
+    private Dictionary<DropSO, int> collectedDropsDict = new Dictionary<DropSO, int>();
+    private int currentDropCollectedTotal;
 
-    public override void Awake()
-    {
-        base.Awake();
-        stats[UpgradeType.ToolDamage] = data.Damage;
-        stats[UpgradeType.ToolCooldown] = data.CooldownTimer;
-        stats[UpgradeType.ToolMaxRange] = data.Range;
-        laser.UpdateRange(stats[UpgradeType.ToolMaxRange]);
-    }
 
     public override void UpdateUse()
     {
@@ -32,13 +28,13 @@ public class MiningTool : ToolBase
 
         if (MainUseState)
         {
-            if (Physics.Raycast(hitRay, out RaycastHit hit, stats[UpgradeType.ToolMaxRange], destructable))
+            if (Physics.Raycast(hitRay, out RaycastHit hit, Stats[UpgradeType.Range], destructable))
             {
                 if (hit.transform.TryGetComponent(out DestructableBase d))
                 {
-                    if (timer > stats[UpgradeType.ToolCooldown])
+                    if (timer > Stats[UpgradeType.Cooldown])
                     {
-                        d.Destruct(stats[UpgradeType.ToolDamage], out _);
+                        d.Destruct(Stats[UpgradeType.Damage], out _);
                         timer = 0;
                     }
                 }
@@ -52,6 +48,8 @@ public class MiningTool : ToolBase
 
     private void CollectInCone()
     {
+        if (currentDropCollectedTotal >= Stats[UpgradeType.StorageLimit]) return;
+
         DungeonManager currentManager = PlayerController.CurrentDungeon;
         Plane plane = new Plane(Vector3.right, currentManager.transform.position);
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -59,20 +57,32 @@ public class MiningTool : ToolBase
         {
             Vector3 hitPoint = ray.GetPoint(distance);
             BlockData currentData = currentManager.GetBlockFromWorldPosition(hitPoint, out _);
-            foreach (var a in currentData.DropsOnBlock)
-            {
-                Vector3 dropPos = currentManager.instancedDropRenderer.GetDropPosition(a.DropType, a.DropIndex);
-                currentManager.instancedDropRenderer.RemoveDrop(a.DropType, a.DropIndex);
 
-                Transform proxy = currentManager.CheckoutDropProxy(a.DropType, dropPos);
+            for (int i = currentData.DropsOnBlock.Count - 1; i >= 0; i--)
+            {
+                DropReference currentDrop = currentData.DropsOnBlock[i];
+                Vector3 dropPos = currentManager.instancedDropRenderer.GetDropPosition(currentDrop.Data.DropType, currentDrop.DropIndex);
+                currentManager.instancedDropRenderer.RemoveDrop(currentDrop.Data.DropType, currentDrop.DropIndex);
+
+                Transform proxy = currentManager.CheckoutDropProxy(currentDrop.Data.DropType, dropPos);
                 float duration = Mathf.Clamp(Vector3.Distance(transform.position, dropPos), 0f, data.CollectAnimationTimer);
-                StartCoroutine(CollectAnimation(a.DropType, currentManager, proxy, dropPos, duration));
+                currentDropCollectedTotal++;
+                StartCoroutine(CollectAnimation(currentDrop.Data, currentManager, proxy, dropPos, duration));
+                currentData.DropsOnBlock.RemoveAt(i);
+
+                if (currentDropCollectedTotal >= Stats[UpgradeType.StorageLimit]) break;
             }
-            currentData.DropsOnBlock.Clear();
         }
     }
 
-    private IEnumerator CollectAnimation(DropType type, DungeonManager manager, Transform drop, Vector3 startPosition, float animationDuration)
+    public override void SetStats()
+    {
+        base.SetStats();
+        Stats[UpgradeType.Damage] = data.Damage;
+        Stats[UpgradeType.StorageLimit] = data.StorageLimit;
+        laser.UpdateRange(Stats[UpgradeType.Range]);
+    }
+    private IEnumerator CollectAnimation(DropSO dropData, DungeonManager manager, Transform drop, Vector3 startPosition, float animationDuration)
     {
         float duration = animationDuration;
         float elapsed = 0f;
@@ -95,7 +105,11 @@ public class MiningTool : ToolBase
             yield return null;
         }
 
-        manager.ReturnDropProxy(type, drop);
+        if (collectedDropsDict.ContainsKey(dropData))
+            collectedDropsDict[dropData] += 1;
+        else
+            collectedDropsDict[dropData] = 1;
+        manager.ReturnDropProxy(dropData.DropType, drop);
     }
 
     public override void OnDisable()
@@ -103,14 +117,32 @@ public class MiningTool : ToolBase
         base.OnDisable();
     }
 
-    public override void UpgradeSelf(UpgradeData upgradeData)
+
+
+    public Dictionary<DropSO, int> DropsOnTool()
     {
-        stats[upgradeData.Type] += upgradeData.Amount;
-        laser.UpdateRange(stats[UpgradeType.ToolMaxRange]);
+        return collectedDropsDict;
+    }
+    public void ResetStorage()
+    {
+        currentDropCollectedTotal = 0;
+        collectedDropsDict.Clear();
+    }
+    public override void UpgradeSelf(UpgradeType type, float amount)
+    {
+        base.UpgradeSelf(type, amount);
+        switch (type)
+        {
+            case UpgradeType.Damage:
+                Stats[UpgradeType.Damage] += amount;
+                break;
+        }
+        laser.UpdateRange(Stats[UpgradeType.Range]);
     }
 
     void OnDrawGizmos()
     {
-        Gizmos.DrawRay(AimPositionTransform.position, AimPositionTransform.forward * stats[UpgradeType.ToolMaxRange]);
+        if (Stats == null) return;
+        Gizmos.DrawRay(AimPositionTransform.position, AimPositionTransform.forward * Stats[UpgradeType.Range]);
     }
 }

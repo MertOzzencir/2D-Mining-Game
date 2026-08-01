@@ -7,6 +7,8 @@ public class DropSO : ScriptableObject
     public Mesh Mesh;
     public Material Material;
     public DropType DropType;
+    public Sprite UI_Image;
+    public string UI_Name;
 }
 
 [Serializable]

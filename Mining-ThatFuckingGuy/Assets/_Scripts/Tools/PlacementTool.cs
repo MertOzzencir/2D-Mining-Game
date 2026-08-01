@@ -58,10 +58,7 @@ public class PlacementTool : ToolBase
         else
             currentBlock = null;
     }
-    public override void UpgradeSelf(UpgradeData upgradeData)
-    {
 
-    }
     public override void MainUse(bool state)
     {
         base.MainUse(state);

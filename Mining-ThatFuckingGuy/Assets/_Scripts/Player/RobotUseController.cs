@@ -12,6 +12,7 @@ public class RobotUseController : MonoBehaviour
     {
         player = GetComponent<PlayerController>();
         robot = FindAnyObjectByType<Robot>();
+        player.OnEnterRobot();
         robot.GetInRobot(player);
         isRiding = true;
     }
@@ -23,6 +24,7 @@ public class RobotUseController : MonoBehaviour
             if (distance < getInDistance)
             {
                 isRiding = true;
+                player.OnEnterRobot();
                 robot.GetInRobot(player);
             }
         }

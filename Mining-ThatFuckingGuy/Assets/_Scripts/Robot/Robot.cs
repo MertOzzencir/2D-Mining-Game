@@ -50,6 +50,7 @@ public class Robot : MonoBehaviour
         if (obj)
         {
             player.EmptyAllBackpackDirt(inside);
+            player.EmptyAllDropsOnMiningTool();
         }
     }
     public void GetInRobot(PlayerController user)

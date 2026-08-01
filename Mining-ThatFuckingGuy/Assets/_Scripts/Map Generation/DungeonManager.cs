@@ -156,7 +156,7 @@ public class DungeonManager : MonoBehaviour
             {
                 foreach (var dropRef in above.DropsOnBlock)
                 {
-                    instancedDropRenderer.UngroundDrop(dropRef.DropType, dropRef.DropIndex);
+                    instancedDropRenderer.UngroundDrop(dropRef.Data.DropType, dropRef.DropIndex);
                 }
                 above.DropsOnBlock.Clear();
             }

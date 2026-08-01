@@ -1,46 +1,32 @@
 using System;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UpgradeNode : MonoBehaviour
 {
-    [SerializeField] private ToolBase tool;
-    [SerializeField] private UpgradeData[] upgradeDatas;
-    [SerializeField] private Button[] buttons;
+    public event Action<UpgradeNode> OnUpgraded;
+    [SerializeField] private NodeUpgradeSO data;
+    [SerializeField] private TextMeshProUGUI nodeDisplayName;
+    [SerializeField] private UpgradeNode prerequisite;
+
+    Button button;
     void Awake()
     {
-        for (int i = 0; i < buttons.Length; i++)
-        {
-            int capturexIndex = i;
-            buttons[i].onClick.AddListener(() => Upgrade(capturexIndex));
-            buttons[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = upgradeDatas[i].UpgradeName;
-        }
+        button = GetComponent<Button>();
+        nodeDisplayName.text = data.DisplayName;
     }
-    private void Set(UpgradeData data)
+    public void Upgrade()
     {
-        tool.UpgradeSelf(data);
+        data.Apply(ToolController.Instance);
+        OnUpgraded?.Invoke(this);
     }
-    [ContextMenu("Upgrade")]
-    public void Upgrade(int index)
+    public void OpenSelf()
     {
-        Debug.Log(index);
-        if (index < upgradeDatas.Length)
-            Set(upgradeDatas[index]);
+        gameObject.SetActive(true);
     }
-}
-[Serializable]
-public enum UpgradeType
-{
-    ToolDamage,
-    ToolCooldown,
-    ToolMaxRange
-}
-[Serializable]
-public class UpgradeData
-{
-    public UpgradeType Type;
-    public float Amount;
-    public string UpgradeName;
+    public UpgradeNode GetPrerequisite()
+    {
+        return prerequisite;
+    }
 }
