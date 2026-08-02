@@ -1,12 +1,11 @@
 using UnityEngine;
 [CreateAssetMenu(menuName = "Skill Tree/Mining/Cooldown Boost")]
-public class MiningCooldownUpgradeSO : NodeUpgradeSO
+public class MiningCooldownUpgradeSO : StatUpgradeSO
 {
-    public float UpgradeBoost;
 
-    public override void Apply(ToolController toolController)
+    public override void Apply(ToolController toolController, int level)
     {
         MiningTool tool = toolController.GetMiningTool();
-        tool.UpgradeSelf(UpgradeType.Cooldown, UpgradeBoost);
+        tool.UpgradeSelf(UpgradeType.Cooldown, UpgradeBoost[level]);
     }
 }

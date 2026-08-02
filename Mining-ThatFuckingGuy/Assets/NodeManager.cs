@@ -1,10 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class NodeManager : MonoBehaviour
 {
     [SerializeField] private UpgradeNode[] allNodes;
+
     void Awake()
     {
+        allNodes = GetComponentsInChildren<UpgradeNode>(true);
         foreach (var a in allNodes)
         {
             a.OnUpgraded += Unlock;
@@ -19,7 +22,7 @@ public class NodeManager : MonoBehaviour
             if (a.GetPrerequisite() == upgradedNode)
             {
                 Debug.Log("Found one: " + a.name);
-                
+
                 a.OpenSelf();
             }
         }

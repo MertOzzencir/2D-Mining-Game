@@ -1,13 +1,12 @@
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Skill Tree/Mining/Damage Boost")]
-public class MiningDamageUpgradeSO : NodeUpgradeSO
+public class MiningDamageUpgradeSO : StatUpgradeSO
 {
-    public float UpgradeBoost;
 
-    public override void Apply(ToolController toolController)
+    public override void Apply(ToolController toolController, int level)
     {
         MiningTool tool = toolController.GetMiningTool();
-        tool.UpgradeSelf(UpgradeType.Damage, UpgradeBoost);
+        tool.UpgradeSelf(UpgradeType.Damage, UpgradeBoost[level]);
     }
 }

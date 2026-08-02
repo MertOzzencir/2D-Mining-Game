@@ -11,22 +11,37 @@ public class UpgradeNode : MonoBehaviour
     [SerializeField] private UpgradeNode prerequisite;
 
     Button button;
+    private int currentLevel;
+    private int maxLevel;
     void Awake()
     {
         button = GetComponent<Button>();
+        maxLevel = data.MaxLevel;
         nodeDisplayName.text = data.DisplayName;
     }
     public void Upgrade()
     {
-        data.Apply(ToolController.Instance);
+        if (currentLevel >= maxLevel) return;
+
+        data.Apply(ToolController.Instance, currentLevel);
+        NextLevel();
         OnUpgraded?.Invoke(this);
     }
     public void OpenSelf()
     {
         gameObject.SetActive(true);
     }
+    public void CloseSelf()
+    {
+        gameObject.SetActive(false);
+    }
     public UpgradeNode GetPrerequisite()
     {
         return prerequisite;
+    }
+    public void NextLevel()
+    {
+        currentLevel++;
+        if (currentLevel >= maxLevel) CloseSelf();
     }
 }

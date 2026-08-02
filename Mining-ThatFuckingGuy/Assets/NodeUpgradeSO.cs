@@ -4,8 +4,14 @@ public abstract class NodeUpgradeSO : ScriptableObject
 {
     public string DisplayName;
     public NodeCost[] Costs;
-
-    public abstract void Apply(ToolController toolController);
+    public abstract int MaxLevel { get; }
+    public abstract void Apply(ToolController toolController, int level);
+}
+public abstract class StatUpgradeSO : NodeUpgradeSO
+{
+    public float[] UpgradeBoost;
+    public override int MaxLevel => UpgradeBoost.Length;
+   
 }
 [System.Serializable]
 public struct NodeCost

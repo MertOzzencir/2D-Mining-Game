@@ -171,10 +171,11 @@ public class DungeonManager : MonoBehaviour
             GenericObjectPool<ParticleBase> dirtPool = GetOrCreateDirtPool(vfxType);
             ParticleBase p = dirtPool.Get();
             p.SetPool(dirtPool);
+            p.GetComponent<MeshRenderer>().material.SetColor("_BaseColor", hitObject.Data.Color);
             p.PlayAnimation(hitObject.transform.position, backpack.transform, hitObject.Data.DirtValue, (amount) =>
             {
                 backpack.AddDirt(amount);
-                player.AddCollectedDirt(vfxType, amount);
+                player.AddCollectedDirt(hitObject.Data, amount); // vfxType yerine hitObject.Data
             });
         }
 

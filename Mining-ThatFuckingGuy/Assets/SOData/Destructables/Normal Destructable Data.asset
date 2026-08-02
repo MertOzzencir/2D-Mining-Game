@@ -18,3 +18,4 @@ MonoBehaviour:
   DirtValue: 1
   VisualMesh: {fileID: -5754084199372789682, guid: 146e91b2ea986864c83b923e1a149a6b, type: 3}
   VisualMaterial: {fileID: 2100000, guid: 7fab5f4cf881e1449b93b871082a1365, type: 2}
+  Color: {r: 0.5411765, g: 0.41960785, b: 0.3019608, a: 0}

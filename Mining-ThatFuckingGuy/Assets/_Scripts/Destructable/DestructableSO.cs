@@ -9,4 +9,5 @@ public class DestructableSO : ScriptableObject
     public float DirtValue;
     public MeshFilter VisualMesh;
     public Material VisualMaterial;
+    public Color Color;
 }

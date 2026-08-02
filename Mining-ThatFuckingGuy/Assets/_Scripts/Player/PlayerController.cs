@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
     private ToolController toolController;
     private InventoryController inventoryController;
     private Dictionary<ParticleBase, GenericObjectPool<ParticleBase>> emptyParticlePools = new();
-    private Dictionary<ParticleBase, float> collectedDirtByType = new();
+    private Dictionary<DestructableSO, float> collectedDirtByType = new();
 
     void Awake()
     {
@@ -240,20 +240,19 @@ public class PlayerController : MonoBehaviour
     }
 
     // DungeonManager, bir dirt particle backpack'e ULAŞTIĞINDA bunu çağırıyor
-    public void AddCollectedDirt(ParticleBase type, float amount)
+    public void AddCollectedDirt(DestructableSO data, float amount)
     {
-        if (collectedDirtByType.ContainsKey(type))
-            collectedDirtByType[type] += amount;
+        if (collectedDirtByType.ContainsKey(data))
+            collectedDirtByType[data] += amount;
         else
-            collectedDirtByType[type] = amount;
+            collectedDirtByType[data] = amount;
     }
-
     public void EmptyAllBackpackDirt(RobotInside robotStoraged)
     {
         float totalDirt = backpack.CurrentDirtAmount();
         if (totalDirt <= 0) return;
 
-        List<KeyValuePair<ParticleBase, float>> breakdown = new(collectedDirtByType);
+        List<KeyValuePair<DestructableSO, float>> breakdown = new(collectedDirtByType);
 
         backpack.ResetDirtInStoraged();
         collectedDirtByType.Clear();
@@ -270,16 +269,16 @@ public class PlayerController : MonoBehaviour
         miningTool.ResetStorage();
     }
 
-    private IEnumerator EmptyDirtAnimation(List<KeyValuePair<ParticleBase, float>> breakdown, Transform robotStoraged, Action<float> onArrive)
+    private IEnumerator EmptyDirtAnimation(List<KeyValuePair<DestructableSO, float>> breakdown, Transform robotStoraged, Action<float> onArrive)
     {
         int spawned = 0;
 
         foreach (var kvp in breakdown)
         {
-            ParticleBase type = kvp.Key;
+            DestructableSO data = kvp.Key;
             float amount = kvp.Value;
 
-            GenericObjectPool<ParticleBase> pool = GetOrCreateEmptyParticlePool(type); // artık lazy, warning'e gerek yok
+            GenericObjectPool<ParticleBase> pool = GetOrCreateEmptyParticlePool(data.DirtParticleVFX);
 
             int particleCount = Mathf.Max(1, Mathf.CeilToInt(amount / dirtPerParticle));
             float perParticleAmount = amount / particleCount;
@@ -289,6 +288,7 @@ public class PlayerController : MonoBehaviour
                 ParticleBase p = pool.Get();
                 p.SetPool(pool);
                 p.transform.position = backpack.transform.position;
+                p.GetComponent<MeshRenderer>().material.SetColor("_BaseColor", data.Color);
                 p.PlayAnimation(backpack.transform.position, robotStoraged.transform, perParticleAmount, onArrive);
 
                 spawned++;

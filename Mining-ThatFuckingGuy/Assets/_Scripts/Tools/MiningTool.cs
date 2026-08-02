@@ -9,13 +9,18 @@ public class MiningTool : ToolBase
     [SerializeField] private LayerMask dropLayerMask;
     [SerializeField] private Transform storagedPlacement;
     [SerializeField] private LaserBeam laser;
+    [SerializeField] private ParticleSystem hitVFX;
     private Vector3 direction;
     private float timer;
     private MiningToolSO data => Data as MiningToolSO;
     private Dictionary<DropSO, int> collectedDropsDict = new Dictionary<DropSO, int>();
     private int currentDropCollectedTotal;
-
-
+    private ParticleSystemRenderer hitVFXRenderer;
+    public override void Awake()
+    {
+        base.Awake();
+        hitVFXRenderer = hitVFX.GetComponent<ParticleSystemRenderer>();
+    }
     public override void UpdateUse()
     {
         base.UpdateUse();
@@ -36,14 +41,26 @@ public class MiningTool : ToolBase
                     {
                         d.Destruct(Stats[UpgradeType.Damage], out _);
                         timer = 0;
+                        hitVFX.gameObject.transform.position = d.transform.position;
+                        hitVFXRenderer.material.SetColor("_BaseColor", d.Data.Color);
+                        hitVFX.Play();
                     }
                 }
             }
+            else
+            {
+                hitVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            }
+
+            return;
         }
         else if (AlternativeState)
         {
             CollectInCone();
+            return;
         }
+        hitVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+
     }
 
     private void CollectInCone()

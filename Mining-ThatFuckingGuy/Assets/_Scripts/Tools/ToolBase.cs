@@ -77,16 +77,28 @@ public abstract class ToolBase : MonoBehaviour
         InputManager.OnMouseRight -= AlternativeUse;
         InputManager.OnRotate -= InteractUse;
     }
+    private int cooldownApplyCount = 0;
     public virtual void UpgradeSelf(UpgradeType type, float amount)
     {
         switch (type)
         {
             case UpgradeType.Cooldown:
+                cooldownApplyCount++;
+                Debug.Log($"[{cooldownApplyCount}. çağrı] amount={amount}, ÖNCE={Stats[UpgradeType.Cooldown]}");
                 Stats[UpgradeType.Cooldown] -= amount;
+                Debug.Log($"[{cooldownApplyCount}. çağrı] SONRA={Stats[UpgradeType.Cooldown]}");
                 break;
             case UpgradeType.Range:
                 Stats[UpgradeType.Range] += amount;
                 break;
+        }
+    }
+    [ContextMenu("Debug Stats")]
+    public void DebugStats()
+    {
+        foreach (var a in Stats)
+        {
+            Debug.Log("Current Stat: " + a.Key + " " + "Current Value: " + a.Value);
         }
     }
 }

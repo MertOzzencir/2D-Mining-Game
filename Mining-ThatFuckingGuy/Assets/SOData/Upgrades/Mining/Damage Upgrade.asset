@@ -16,4 +16,7 @@ MonoBehaviour:
   Costs:
   - Drop: {fileID: 11400000, guid: 96987bd3caa50444593fcc7737d3d387, type: 2}
     Amount: 25
-  UpgradeBoost: 1
+  UpgradeBoost:
+  - 1
+  - 1
+  - 1
