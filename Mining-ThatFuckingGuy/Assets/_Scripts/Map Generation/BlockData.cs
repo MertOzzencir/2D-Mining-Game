@@ -5,6 +5,7 @@ using UnityEngine;
 [Serializable]
 public class BlockData
 {
+    public GameObject BlackDust;
     public int ZIndex;
     public int YIndex;
     public bool IsEmpty;

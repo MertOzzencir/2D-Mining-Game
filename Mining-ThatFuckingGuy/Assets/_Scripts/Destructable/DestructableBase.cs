@@ -60,4 +60,13 @@ public abstract class DestructableBase : MonoBehaviour
         }
         transform.rotation = Quaternion.Euler(randomRotationVector);
     }
+
+    public float CurrentHealthRatio()
+    {
+        return 1 - CurrentHealth / data.MaxHealth + 0.35f;
+    }
+    public Material GetMaterial()
+    {
+        return visualMeshRenderer.material;
+    }
 }

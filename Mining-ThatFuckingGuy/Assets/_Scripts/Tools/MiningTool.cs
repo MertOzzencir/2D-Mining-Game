@@ -39,6 +39,8 @@ public class MiningTool : ToolBase
                 {
                     if (timer > Stats[UpgradeType.Cooldown])
                     {
+                        Material renderer = d.GetMaterial();
+                        renderer.SetFloat("_DestroyOffSet", d.CurrentHealthRatio());
                         d.Destruct(Stats[UpgradeType.Damage], out _);
                         timer = 0;
                         hitVFX.gameObject.transform.position = d.transform.position;

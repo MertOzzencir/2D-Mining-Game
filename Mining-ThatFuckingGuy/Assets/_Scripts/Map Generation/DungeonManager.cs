@@ -14,6 +14,7 @@ public class DungeonManager : MonoBehaviour
     [SerializeField] private float bounceDuration = 0.15f;
     [SerializeField] private float bounceScaleMultiplier = 1.2f;
     [SerializeField] private GameObject wallPrefab;
+    [SerializeField] private GameObject blackDust;
     private BlockData[,] blocks;
     public InstancedDropRenderer instancedDropRenderer;
     private Dictionary<DropType, GenericObjectPool<Transform>> dropProxyPools = new();
@@ -131,8 +132,16 @@ public class DungeonManager : MonoBehaviour
             }
         }
         for (int h = 0; h < height; h++)
+        {
             for (int w = 0; w < width; w++)
+            {
                 blocks[w, h].CalculateCorners(this);
+                if (blocks[w, h].IsEmpty)
+                {
+                    RevealSurroundingDust(blocks[w, h]);
+                }
+            }
+        }
     }
 
     private void HandleHitDestructable(DestructableBase hitObject, bool isDead)
@@ -147,6 +156,7 @@ public class DungeonManager : MonoBehaviour
         ownData.IsEmpty = true;
         ownData.CalculateCorners(this);
         RecalculateNeighborCorners(ownData);
+        RevealSurroundingDust(ownData);
 
         int aboveY = ownData.YIndex + 1;
         for (int i = aboveY; i < blocks.GetLength(1); i++)
@@ -210,6 +220,7 @@ public class DungeonManager : MonoBehaviour
                 g2.OnSpawned();
                 g2.transform.parent = transform;
                 g2.OnHit += HandleHitDestructable;
+                // 
                 break;
             case ObjectType.Dirt:
                 DestructableBase dirt = Instantiate(destructableData[1].Prefab, spawnPosition, Quaternion.identity);
@@ -225,6 +236,8 @@ public class DungeonManager : MonoBehaviour
                 break;
         }
         blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos, this);
+        GameObject dust = Instantiate(blackDust, worldPos + Vector3.right / 2 * 1.15f, Quaternion.Euler(0, -90, 0));
+        blocks[zIndex, yIndex].BlackDust = dust;
     }
 
     private ObjectType GetTypeFromPixel(Color c)
@@ -325,7 +338,23 @@ public class DungeonManager : MonoBehaviour
         if (hitObject != null) // animasyon sürerken obje başka bir vuruşla ölmüş olabilir
             hitObject.SetVisualVisible(true);
     }
+    private void RevealSurroundingDust(BlockData block)
+    {
+        foreach (var (dz, dy) in Full3x3Offsets)
+        {
+            int nz = block.ZIndex + dz;
+            int ny = block.YIndex + dy;
 
+            if (nz < 0 || ny < 0 || nz >= blocks.GetLength(0) || ny >= blocks.GetLength(1))
+                continue;
+
+            BlockData neighbor = blocks[nz, ny];
+            if (neighbor != null && neighbor.BlackDust != null)
+            {
+                neighbor.BlackDust.SetActive(false);
+            }
+        }
+    }
     [ContextMenu("Debug")]
     public void DebugBlocks()
     {
@@ -334,6 +363,12 @@ public class DungeonManager : MonoBehaviour
             a.DebugSelf();
         }
     }
+    private static readonly (int z, int y)[] Full3x3Offsets =
+{
+    (-1, -1), (0, -1), (1, -1),
+    (-1,  0), (0,  0), (1,  0),
+    (-1,  1), (0,  1), (1,  1),
+};
 }
 
 public enum ObjectType
