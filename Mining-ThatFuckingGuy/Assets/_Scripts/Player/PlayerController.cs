@@ -312,6 +312,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log(a + "Key: " + "Value -> " + a.Value);
         }
     }
+   
     void OnEnable()
     {
         animationController.enabled = true;
@@ -322,5 +323,9 @@ public class PlayerController : MonoBehaviour
     void OnDisable()
     {
         InputManager.OnJump -= Jump;
+    }
+    public Vector3 CurrentPosition()
+    {
+        return transform.position;
     }
 }

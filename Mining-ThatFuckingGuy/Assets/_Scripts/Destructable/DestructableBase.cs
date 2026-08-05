@@ -14,6 +14,7 @@ public abstract class DestructableBase : MonoBehaviour
     public Mesh VisualMesh => visualMeshFilter.sharedMesh;
     public Material VisualMaterial => visualMeshRenderer.sharedMaterial;
 
+
     void Awake()
     {
         CurrentHealth = data.MaxHealth;
@@ -34,7 +35,6 @@ public abstract class DestructableBase : MonoBehaviour
         {
             isDead = true;
             OnHit?.Invoke(this, true);
-            Destroy(gameObject);
         }
         else
         {
