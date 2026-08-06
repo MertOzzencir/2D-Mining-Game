@@ -204,12 +204,12 @@ public class DungeonManager : MonoBehaviour
         switch (GetTypeFromPixel(mapColor))
         {
             case ObjectType.FreeSpace:
-                blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, true, worldPos, this);
+                blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, true, worldPos, Vector3.zero);
                 return;
             case ObjectType.Undestructable:
                 UndestructableBase g = Instantiate(unbreakablePrefab, spawnPosition, Quaternion.identity);
                 g.transform.parent = transform;
-                blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos, this);
+                blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos, g.GetComponent<BoxCollider>().bounds.size);
                 GameObject dust2 = Instantiate(blackDust, worldPos + Vector3.right / 2 * 1.15f, Quaternion.Euler(0, -90, 0));
                 blocks[zIndex, yIndex].BlackDust = dust2;
                 blocks[zIndex, yIndex].wall = wall;
@@ -228,7 +228,7 @@ public class DungeonManager : MonoBehaviour
         abstractBlock.OnSpawned();
         abstractBlock.transform.parent = transform;
         abstractBlock.OnHit += HandleHitDestructable;
-        blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos, this);
+        blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos, abstractBlock.GetComponent<BoxCollider>().bounds.size);
         GameObject dust = Instantiate(blackDust, worldPos + Vector3.right / 2 * 1.15f, Quaternion.Euler(0, -90, 0));
         blocks[zIndex, yIndex].BlackDust = dust;
         blocks[zIndex, yIndex].CurrentBlock = abstractBlock;

@@ -17,7 +17,7 @@ public class StateMachine
     }
     public void UpdateState()
     {
-        Debug.Log(currentBase);
+        //Debug.Log(currentBase);
         currentBase.Update();
     }
 
