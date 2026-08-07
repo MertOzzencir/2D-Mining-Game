@@ -3,8 +3,10 @@ using UnityEngine;
 public class EnemyCockroachMoveState : EnemyCockroachState
 {
     private Vector3 currentDestination;
-    public EnemyCockroachMoveState(StateMachine stateMachine, CockroachEnemy owner, PlayerController player) : base(stateMachine, owner, player)
+    private float playerFindDistance;
+    public EnemyCockroachMoveState(StateMachine stateMachine, CockroachEnemy owner, PlayerController player,float findDistance) : base(stateMachine, owner, player)
     {
+        playerFindDistance = findDistance;
     }
 
     public override void Enter()
@@ -26,8 +28,8 @@ public class EnemyCockroachMoveState : EnemyCockroachState
         Owner.transform.position += moveDirection * Owner.Speed * Time.deltaTime;
         Quaternion lookrotation = Quaternion.LookRotation(moveDirection, Vector3.right);
         Owner.transform.rotation = Quaternion.Lerp(Owner.transform.rotation, lookrotation, 25f * Time.deltaTime);
-        if (Vector3.Distance(Owner.transform.position, Player.CurrentPosition()) < .5f)
-            StateMachine.ChangeState(Owner.IdleState);
+        if (Vector3.Distance(Owner.transform.position, Player.CurrentPosition()) < playerFindDistance)
+            StateMachine.ChangeState(Owner.AttackState);
         else if (Vector3.Distance(Owner.transform.position, currentDestination) < 0.1f)
         {
             FindClosestBlock();

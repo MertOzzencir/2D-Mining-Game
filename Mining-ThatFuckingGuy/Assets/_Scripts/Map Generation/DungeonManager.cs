@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class DungeonManager : MonoBehaviour
 {
+    [SerializeField] private bool showBlockGizmos = false;
     [SerializeField] private Texture2D dungeonMap;
     [SerializeField] private UndestructableBase unbreakablePrefab;
     [SerializeField] private DestructableSO[] destructableData;
@@ -400,6 +404,29 @@ public class DungeonManager : MonoBehaviour
     (-1,  0), (0,  0), (1,  0),
     (-1,  1), (0,  1), (1,  1),
 };
+    void OnDrawGizmosSelected()
+    {
+        if (!showBlockGizmos || blocks == null) return;
+
+#if UNITY_EDITOR
+        for (int z = 0; z < blocks.GetLength(0); z++)
+        {
+            for (int y = 0; y < blocks.GetLength(1); y++)
+            {
+                BlockData block = blocks[z, y];
+                if (block == null) continue;
+
+                GUIStyle style = new GUIStyle();
+                style.normal.textColor = block.IsEmpty ? Color.green : Color.red;
+                style.fontSize = 10;
+                style.alignment = TextAnchor.MiddleCenter;
+
+                string label = $"({block.ZIndex},{block.YIndex})\n{(block.IsEmpty ? "Empty" : "Solid")}";
+                Handles.Label(block.WorldPosition, label, style);
+            }
+        }
+#endif
+    }
 }
 
 public enum ObjectType
