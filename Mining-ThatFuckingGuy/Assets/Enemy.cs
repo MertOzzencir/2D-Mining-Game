@@ -2,12 +2,12 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
-    public float BlockToBlockTimeSpeed;
+    public float Speed;
     public float Damage;
     public StateMachine StateMachine { get; set; }
     public PlayerController Player { get; set; }
 
-    public void Awake()
+    public virtual void Awake()
     {
         StateMachine = new StateMachine();
         Player = FindAnyObjectByType<PlayerController>();

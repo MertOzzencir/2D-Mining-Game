@@ -98,6 +98,83 @@ public class BlockData
             default: return point;
         }
     }
+    public bool IsFront(BlockPoint point)
+    {
+        switch (point)
+        {
+            case BlockPoint.FrontBottom: return true;
+            case BlockPoint.FrontTop: return true;
+            case BlockPoint.FrontBottomLeft: return true;
+            case BlockPoint.FrontBottomRight: return true;
+            case BlockPoint.FrontTopLeft: return true;
+            case BlockPoint.FrontTopRight: return true;
+            case BlockPoint.FrontRight: return true;
+            case BlockPoint.FrontLeft: return true;
+            default: return false;
+        }
+    }
+    public bool IsBack(BlockPoint point)
+    {
+        switch (point)
+        {
+            case BlockPoint.BackBottom: return true;
+            case BlockPoint.BackTop: return true;
+            case BlockPoint.BackBottomLeft: return true;
+            case BlockPoint.BackBottomRight: return true;
+            case BlockPoint.BackTopLeft: return true;
+            case BlockPoint.BackTopRight: return true;
+            case BlockPoint.BackRight: return true;
+            case BlockPoint.BackLeft: return true;
+            default: return false;
+        }
+    }
+    public BlockPoint FindClosestFrontPoint(Vector3 fromPosition)
+    {
+        float z = WorldPosition.z - fromPosition.z;
+        float y = WorldPosition.y - fromPosition.y;
+
+        const float centerThreshold = 0.5f;
+        bool zCenter = Mathf.Abs(z) < centerThreshold;
+        bool yCenter = Mathf.Abs(y) < centerThreshold;
+
+        if (zCenter && yCenter)
+            return y >= 0 ? BlockPoint.FrontTop : BlockPoint.FrontBottom;
+
+        if (zCenter)
+            return y > 0 ? BlockPoint.FrontTop : BlockPoint.FrontBottom;
+
+        if (yCenter)
+            return z > 0 ? BlockPoint.FrontRight : BlockPoint.FrontLeft;
+
+        if (z < 0 && y < 0) return BlockPoint.FrontBottomLeft;
+        if (z < 0 && y > 0) return BlockPoint.FrontTopLeft;
+        if (z > 0 && y < 0) return BlockPoint.FrontBottomRight;
+        return BlockPoint.FrontTopRight;
+    }
+
+    public BlockPoint FindClosestBackPoint(Vector3 fromPosition)
+    {
+        float z = WorldPosition.z - fromPosition.z;
+        float y = WorldPosition.y - fromPosition.y;
+
+        const float centerThreshold = 0.5f;
+        bool zCenter = Mathf.Abs(z) < centerThreshold;
+        bool yCenter = Mathf.Abs(y) < centerThreshold;
+
+        if (zCenter && yCenter)
+            return y >= 0 ? BlockPoint.BackTop : BlockPoint.BackBottom;
+
+        if (zCenter)
+            return y > 0 ? BlockPoint.BackTop : BlockPoint.BackBottom;
+
+        if (yCenter)
+            return z > 0 ? BlockPoint.BackRight : BlockPoint.BackLeft;
+
+        if (z < 0 && y < 0) return BlockPoint.BackBottomLeft;
+        if (z < 0 && y > 0) return BlockPoint.BackTopLeft;
+        if (z > 0 && y < 0) return BlockPoint.BackBottomRight;
+        return BlockPoint.BackTopRight;
+    }
 }
 public enum BlockPoint
 {

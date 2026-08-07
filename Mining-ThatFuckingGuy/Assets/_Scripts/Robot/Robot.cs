@@ -15,6 +15,7 @@ public class Robot : MonoBehaviour
     private DungeonGate currentGate;
     private PlayerController currentPlayer;
     private bool isEnteredToGate;
+    private float lastTimeEnteredToGate;
     void Start()
     {
         input = FindAnyObjectByType<InputManager>();
@@ -67,7 +68,7 @@ public class Robot : MonoBehaviour
     public void GetOutRobot(PlayerController user, out bool success)
     {
         success = true;
-        if (!isEnteredToGate)
+        if (!isEnteredToGate || lastTimeEnteredToGate + 0.5f > Time.time)
         {
             success = false;
             return;
@@ -85,7 +86,11 @@ public class Robot : MonoBehaviour
         if (!isEnteredToGate)
         {
             currentGate.AcceptRobot(this, out bool success);
-            if (success) isEnteredToGate = true;
+            if (success)
+            {
+                isEnteredToGate = true;
+                lastTimeEnteredToGate = Time.time;
+            }
         }
         else
         {
