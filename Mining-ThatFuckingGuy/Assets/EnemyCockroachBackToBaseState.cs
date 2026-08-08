@@ -1,50 +1,34 @@
 using UnityEngine;
 
-public class EnemyCockroachMoveState : EnemyCockroachState
+public class EnemyCockroachBackToBaseState : EnemyCockroachState
 {
-    private Vector3 currentDestination;
-    private float playerFindDistance;
-    public EnemyCockroachMoveState(StateMachine stateMachine, CockroachEnemy owner, PlayerController player, float findDistance) : base(stateMachine, owner, player)
+    public Vector3 currentDestination;
+    public EnemyCockroachBackToBaseState(StateMachine stateMachine, CockroachEnemy owner, PlayerController player) : base(stateMachine, owner, player)
     {
-        playerFindDistance = findDistance;
     }
-
     public override void Enter()
     {
         base.Enter();
         Owner.DiveState.SetDynamicState(this);
         FindClosestBlock();
     }
-
-    public override void Exit()
-    {
-        base.Exit();
-    }
-
     public override void Update()
     {
-        base.Update();
-        if (Player == null)
-        {
-            StateMachine.ChangeState(Owner.ReturnBaseState);
-            return;
-        }
+
         Vector3 moveDirection = (currentDestination - Owner.transform.position).normalized;
         Owner.transform.position += moveDirection * Owner.Speed * Time.deltaTime;
         Quaternion lookrotation = Quaternion.LookRotation(moveDirection, Vector3.right);
         Owner.transform.rotation = Quaternion.Lerp(Owner.transform.rotation, lookrotation, 25f * Time.deltaTime);
-        if (Vector3.Distance(Owner.transform.position, Player.CurrentPosition()) < playerFindDistance)
-            StateMachine.ChangeState(Owner.AttackState);
+        if (Vector3.Distance(Owner.transform.position, Owner.BaseOwner.transform.position) < 1)
+            StateMachine.ChangeState(Owner.InactiveState);
         else if (Vector3.Distance(Owner.transform.position, currentDestination) < 0.1f)
         {
             FindClosestBlock();
         }
     }
-
     private void FindClosestBlock()
     {
-        if (Player == null) return;
-        Vector3 directionToPlayer = (Player.CurrentPosition() - Owner.transform.position).normalized;
+        Vector3 directionToPlayer = (Owner.BaseOwner.transform.position - Owner.transform.position).normalized;
         Vector3 nextPosition = Owner.transform.position + directionToPlayer;
         BlockData block = PlayerController.CurrentDungeon.GetBlockFromWorldPosition(nextPosition, out _);
         Owner.CurrentBlock = block;
@@ -74,6 +58,5 @@ public class EnemyCockroachMoveState : EnemyCockroachState
         //Owner.ScaleAnimationStart(Owner.transform.localScale, Vector3.zero);
         Owner.PreviousBlock = Owner.CurrentBlock;
     }
-
 
 }

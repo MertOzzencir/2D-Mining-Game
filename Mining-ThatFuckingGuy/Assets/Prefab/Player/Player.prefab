@@ -499,6 +499,7 @@ MonoBehaviour:
   timeAirTimer: 0.1
   backpack: {fileID: 7288287861024497346}
   headPosition: {fileID: 1970689365662091570}
+  playerCollider: {fileID: 1051801087030394496}
 --- !u!114 &5887335577372050686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -531,10 +532,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.37
-  m_Height: 1.5
+  m_Radius: 0.42871296
+  m_Height: 1.4368582
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: -0.04}
+  m_Center: {x: 0.03809303, y: -0.03157091, z: -0.040810585}
 --- !u!114 &7187778392589648569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10677,9 +10678,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6719140330685947464}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.23813789, z: 0.56540316}
-  m_LocalScale: {x: 1.3926185, y: 1.3926185, z: 1.3926185}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.11, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5647034423827299348}

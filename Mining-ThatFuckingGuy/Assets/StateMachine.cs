@@ -1,11 +1,13 @@
 using UnityEngine;
 
-public class StateMachine 
+public class StateMachine
 {
 
     StateBase currentBase;
     public void Initilize(StateBase startState)
     {
+        Debug.Log(currentBase);
+
         currentBase = startState;
         currentBase.Enter();
     }
@@ -14,10 +16,11 @@ public class StateMachine
         currentBase.Exit();
         currentBase = next;
         currentBase.Enter();
+        Debug.Log(currentBase);
+
     }
     public void UpdateState()
     {
-        //Debug.Log(currentBase);
         currentBase.Update();
     }
 

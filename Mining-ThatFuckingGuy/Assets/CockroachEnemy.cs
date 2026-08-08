@@ -4,43 +4,69 @@ using UnityEngine;
 
 public class CockroachEnemy : Enemy
 {
+    [SerializeField] private Vector2 attackDurationRandomBoundaries;
+    [SerializeField] private Vector2 playerFindDistanceRandomBoundaries;
+    [SerializeField] private float xOffSet;
+    [SerializeField] private float offSetFromPlayerToSelf;
     [SerializeField] private AnimationCurve speedCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private float scaleAnimationTime;
-    [SerializeField] private float attackDuration = 0.6f;
-    [SerializeField] private float playerFindDistance;
+
     public EnemyCockroachIdleState IdleState;
     public EnemyCockroachMoveState MoveState;
     public EnemyCockroachMoveDiveState DiveState;
     public EnemyCockroachAttackState AttackState;
+    public EnemyCockroachBackToBaseState ReturnBaseState;
+    public EnemyCockroachInactiveState InactiveState;
+
     public BlockPoint PreviousPoint { get; set; }
     public BlockData CurrentBlock { get; set; }
     public BlockData PreviousBlock { get; set; }
+    public CockroachBase BaseOwner { get; set; }
+    public float PlayerFindDistance { get; private set; }
+    public float AttackDuration { get; private set; }
+
+    // Gizmos için önbelleğe alınan ray bilgisi
+    private Vector3 debugRayOrigin;
+    private Vector3 debugRayDirection;
+    private bool hasDebugRay;
+
     [ContextMenu("Find Navigation")]
     public override void Awake()
     {
+        // Bu ikisi SADECE BURADA, spawn anında bir kere belirleniyor - artık bir daha hiç değişmiyor
+        PlayerFindDistance = UnityEngine.Random.Range(playerFindDistanceRandomBoundaries.x, playerFindDistanceRandomBoundaries.y);
+        AttackDuration = UnityEngine.Random.Range(attackDurationRandomBoundaries.x, attackDurationRandomBoundaries.y);
+
         Vector3 nextPosition = transform.position;
         BlockData block = PlayerController.CurrentDungeon.GetBlockFromWorldPosition(nextPosition, out _);
         CurrentBlock = block;
         PreviousBlock = block;
         PreviousPoint = CurrentBlock.FindClosestFrontPoint(transform.position);
-        base.Awake();
+        base.Awake(); // InitilizeStates() burada çağrılıyor, PlayerFindDistance'ın YUKARIDA hazır olması şart
     }
+
     public override void InitilizeStates()
     {
         IdleState = new EnemyCockroachIdleState(StateMachine, this, Player);
-        MoveState = new EnemyCockroachMoveState(StateMachine, this, Player, playerFindDistance);
+        MoveState = new EnemyCockroachMoveState(StateMachine, this, Player, PlayerFindDistance);
         DiveState = new EnemyCockroachMoveDiveState(StateMachine, this, Player);
         AttackState = new EnemyCockroachAttackState(StateMachine, this, Player);
-        StateMachine.Initilize(MoveState);
+        ReturnBaseState = new EnemyCockroachBackToBaseState(StateMachine, this, Player);
+        InactiveState = new EnemyCockroachInactiveState(StateMachine, this, Player);
+        StateMachine.Initilize(InactiveState);
+        InactiveState.ActiveSelf();
     }
+
     public void ScaleAnimationStart(Vector3 startScale, Vector3 targetScale)
     {
         StartCoroutine(ScaleAnimation(startScale, targetScale));
     }
+
     public void AttackAnimationStart(Vector3 startPos, Transform endPos, Action animationEndConditionEvent)
     {
         StartCoroutine(AttackAnimation(startPos, endPos, animationEndConditionEvent));
     }
+
     private IEnumerator ScaleAnimation(Vector3 startScale, Vector3 targetScale)
     {
         float timer = 0;
@@ -61,34 +87,76 @@ public class CockroachEnemy : Enemy
             yield return null;
         }
     }
+
     private IEnumerator AttackAnimation(Vector3 start, Transform end, Action animationEnd)
     {
-        bool success = true;
-        float elapsed = 0f;
-        start += Vector3.right;
-        int directionMultiplier = transform.position.y - end.transform.position.y > 0 ? -1 : 1;
+
+        Vector3 xOffSetPosition = new Vector3(end.transform.position.x + xOffSet, end.transform.position.y, end.transform.position.z);
+        Vector3 newDirection = (end.transform.position - xOffSetPosition).normalized;
+        Vector3 jumpPosition = end.position;
         Vector3 endPosition = end.position;
-        Vector3 direction = (end.position - transform.position).normalized;
-        while (elapsed < attackDuration)
+        bool success = false;
+        float elapsed = 0f;
+
+
+        Ray ray = new Ray(xOffSetPosition, newDirection);
+
+        debugRayOrigin = ray.origin;
+        debugRayDirection = ray.direction;
+        hasDebugRay = true;
+
+        RaycastHit[] hits = Physics.RaycastAll(ray);
+        System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
+        Vector3 directionToEnemy = (transform.position - end.position).normalized;
+
+        foreach (var a in hits)
         {
-            if (Vector3.Distance(endPosition, end.position) >= playerFindDistance + 0.1f)
+            if (a.collider.GetComponent<PlayerController>())
+            {
+                jumpPosition = a.point + directionToEnemy * offSetFromPlayerToSelf;
+            }
+        }
+        Quaternion lookRotation = Quaternion.LookRotation(-directionToEnemy, Vector3.right);
+
+        while (elapsed < AttackDuration)
+        {
+            if (end == null)
             {
                 success = false;
                 break;
             }
-
-            Quaternion lookRotation = Quaternion.LookRotation(direction, end.forward);
+            if (Vector3.Distance(endPosition, end.position) >= PlayerFindDistance + 0.1f)
+            {
+                success = false;
+                break;
+            }
+            success = true;
             elapsed += Time.deltaTime;
-            float t = elapsed / attackDuration;
-            transform.position = Vector3.Lerp(start, new Vector3(end.position.x + speedCurve.Evaluate(t), end.position.y, end.position.z), t);
+            float t = elapsed / AttackDuration;
+            transform.position = Vector3.Lerp(start, new Vector3(jumpPosition.x + speedCurve.Evaluate(t), jumpPosition.y, jumpPosition.z), t);
             transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, t);
             yield return null;
         }
+
         animationEnd?.Invoke();
 
         if (success)
         {
-            transform.position = end.position;
+            transform.position = jumpPosition;
         }
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!hasDebugRay) return;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(debugRayOrigin, 0.1f);
+        Gizmos.DrawRay(debugRayOrigin, debugRayDirection * PlayerFindDistance);
+    }
+
+    public void OnSpawned(CockroachBase ownerBase)
+    {
+        BaseOwner = ownerBase;
     }
 }

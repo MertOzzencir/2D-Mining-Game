@@ -17,6 +17,12 @@ public class EnemyCockroachAttackState : EnemyCockroachState
     }
     private void AttackEnd()
     {
+        if (Player == null)
+        {
+            StateMachine.ChangeState(Owner.ReturnBaseState);
+            return;
+        }
+        Player.GetHealthController().TakeDamage(Owner.Damage);
         StateMachine.ChangeState(Owner.IdleState);
     }
 

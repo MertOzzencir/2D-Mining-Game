@@ -20,9 +20,14 @@ public class EnemyCockroachIdleState : EnemyCockroachState
     public override void Update()
     {
         base.Update();
+        if (Player == null)
+        {
+            StateMachine.ChangeState(Owner.ReturnBaseState);
+            return;
+        }
         if (Vector3.Distance(Owner.transform.position, Player.CurrentPosition()) > 2f)
         {
-            StateMachine.ChangeState(Owner.MoveState);   
+            StateMachine.ChangeState(Owner.MoveState);
         }
     }
 }

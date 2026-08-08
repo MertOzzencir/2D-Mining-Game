@@ -41,7 +41,6 @@ public class PlacementTool : ToolBase
                     int repeat = 0;
                     while (!success)
                     {
-                        Debug.Log("While");
                         RotationLogic(out success, rotationIndex);
                         if (!success)
                         {

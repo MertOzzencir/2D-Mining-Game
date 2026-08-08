@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
     private PlayerAnimationController animationController;
     private ToolController toolController;
     private InventoryController inventoryController;
+    private HealthController healthController;
     private Dictionary<ParticleBase, GenericObjectPool<ParticleBase>> emptyParticlePools = new();
     private Dictionary<DestructableSO, float> collectedDirtByType = new();
 
@@ -52,6 +53,7 @@ public class PlayerController : MonoBehaviour
         animationController = GetComponent<PlayerAnimationController>();
         toolController = GetComponent<ToolController>();
         inventoryController = GetComponent<InventoryController>();
+        healthController = GetComponent<HealthController>();
     }
 
     private bool wasGrounded = true;
@@ -224,11 +226,16 @@ public class PlayerController : MonoBehaviour
     {
         return headPosition;
     }
+    public HealthController GetHealthController()
+    {
+        return healthController;
+    }
     public void DisableRequests()
     {
         animationController.BeforeDisable();
         toolController.enabled = false;
     }
+   
 
     private GenericObjectPool<ParticleBase> GetOrCreateEmptyParticlePool(ParticleBase prefab)
     {
@@ -316,7 +323,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log(a + "Key: " + "Value -> " + a.Value);
         }
     }
-   
+
     void OnEnable()
     {
         animationController.enabled = true;
