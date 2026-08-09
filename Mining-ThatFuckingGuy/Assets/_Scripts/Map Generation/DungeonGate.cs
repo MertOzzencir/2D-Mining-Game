@@ -1,16 +1,13 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class DungeonGate : MonoBehaviour
 {
+    public event Action OnPlayerHasEntered;
     [SerializeField] private float animationTimer = 5f;
     private DungeonManager owner;
     private Robot currentRobot;
-    void Awake()
-    {
-        owner = transform.parent.GetComponent<DungeonManager>();
-        transform.position = owner.transform.position + new Vector3(0, owner.DungeonHeight() / 2 - 1, 0);
-    }
     public void AcceptRobot(Robot robot, out bool success)
     {
         success = false;
@@ -19,6 +16,7 @@ public class DungeonGate : MonoBehaviour
             success = true;
             StartCoroutine(GateEnterAnimation(robot));
             PlayerController.CurrentDungeon = owner;
+            OnPlayerHasEntered?.Invoke();
         }
     }
     public void RemoveRobot()
@@ -36,5 +34,11 @@ public class DungeonGate : MonoBehaviour
         }
         robot.transform.position = new Vector3(robot.transform.position.x, transform.position.y, robot.transform.position.z);
         //robot.GetOutRobot(robot.GetCurrentPlayer());
+    }
+    public void SetGate(DungeonManager owner)
+    {
+        this.owner = owner;
+        transform.position = owner.transform.position + new Vector3(0, owner.DungeonHeight() / 2 - 1, 0);
+
     }
 }

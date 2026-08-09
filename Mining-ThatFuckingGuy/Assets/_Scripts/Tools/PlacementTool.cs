@@ -5,6 +5,7 @@ public class PlacementTool : ToolBase
     [SerializeField] private GameObject cornerPrefab;
     [SerializeField] private GameObject indicatorPrefab;
     [SerializeField] private PlacementToolBall ballPrefab;
+    [SerializeField] private Animator anim;
     private int rotationIndex;
     private BlockData currentBlock;
     private Transform pivotTransform;
@@ -67,6 +68,7 @@ public class PlacementTool : ToolBase
         {
 
             PlacementToolBall a = Instantiate(ballPrefab, AimPositionTransform.position, Quaternion.identity);
+            anim.SetTrigger("Shot");
             a.SetDirection(AimPositionTransform.forward);
             return;
         }

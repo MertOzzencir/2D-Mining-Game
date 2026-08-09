@@ -10,6 +10,7 @@ public class MiningTool : ToolBase
     [SerializeField] private Transform storagedPlacement;
     [SerializeField] private LaserBeam laser;
     [SerializeField] private ParticleSystem hitVFX;
+    [SerializeField] private ParticleSystem hitNonStopVFX;
     private Vector3 direction;
     private float timer;
     private MiningToolSO data => Data as MiningToolSO;
@@ -20,7 +21,10 @@ public class MiningTool : ToolBase
     {
         base.Awake();
         hitVFXRenderer = hitVFX.GetComponent<ParticleSystemRenderer>();
+        hitNonStopVFX.Stop(false, ParticleSystemStopBehavior.StopEmitting);
     }
+    private bool wasHitting = false;
+
     public override void UpdateUse()
     {
         base.UpdateUse();
@@ -33,10 +37,22 @@ public class MiningTool : ToolBase
 
         if (MainUseState)
         {
+            bool isHittingNow = false;
+
             if (Physics.Raycast(hitRay, out RaycastHit hit, Stats[UpgradeType.Range], destructable))
             {
                 if (hit.transform.TryGetComponent(out DestructableBase d))
                 {
+                    isHittingNow = true;
+
+                    if (!wasHitting)
+                    {
+                        hitNonStopVFX.Play(); 
+                    }
+
+                    hitNonStopVFX.gameObject.transform.position = hit.point;
+                    hitNonStopVFX.transform.forward = hit.normal;
+
                     if (timer > Stats[UpgradeType.Cooldown])
                     {
                         Material renderer = d.GetMaterial();
@@ -54,15 +70,31 @@ public class MiningTool : ToolBase
                 hitVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             }
 
+            if (!isHittingNow && wasHitting)
+            {
+                hitNonStopVFX.Stop(false, ParticleSystemStopBehavior.StopEmitting); // vurmayı bıraktı, kapat
+            }
+
+            wasHitting = isHittingNow;
             return;
         }
         else if (AlternativeState)
         {
+            if (wasHitting)
+            {
+                hitNonStopVFX.Stop(false, ParticleSystemStopBehavior.StopEmitting);
+                wasHitting = false;
+            }
             CollectInCone();
             return;
         }
-        hitVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
 
+        if (wasHitting)
+        {
+            hitNonStopVFX.Stop(false, ParticleSystemStopBehavior.StopEmitting);
+            wasHitting = false;
+        }
+        hitVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
     }
 
     private void CollectInCone()

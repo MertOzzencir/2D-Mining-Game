@@ -499,7 +499,6 @@ MonoBehaviour:
   timeAirTimer: 0.1
   backpack: {fileID: 7288287861024497346}
   headPosition: {fileID: 1970689365662091570}
-  playerCollider: {fileID: 1051801087030394496}
 --- !u!114 &5887335577372050686
 MonoBehaviour:
   m_ObjectHideFlags: 0

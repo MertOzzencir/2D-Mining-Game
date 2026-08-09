@@ -28,22 +28,30 @@ public class ParticleBase : MonoBehaviour
         float elapsed = 0f;
         start += Vector3.right;
         int directionMultiplier = transform.position.y - end.transform.position.y > 0 ? -1 : 1;
+        bool success = true;
         while (elapsed < duration)
         {
-            Vector3 direction = (end.position - start);
-            Vector3 perpendicular = Vector3.Cross(direction, Vector3.right).normalized;
-
-            Vector3 p1 = start + direction * 0.33f + perpendicular * sCurveHeight * directionMultiplier;
-            Vector3 p2 = start + direction * 0.66f - perpendicular * sCurveHeight * directionMultiplier;
             elapsed += Time.deltaTime;
-            float t = speedCurve.Evaluate(elapsed / duration);
-            transform.position = CubicBezier(start, p1, p2, end.position, t);
-            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, 1.5f * Time.deltaTime);
-            transform.Rotate(elapsed * Time.deltaTime * 15f, t * Time.deltaTime * 15f, 15f * 15f * Time.deltaTime);
-            yield return null;
+            if (end != null)
+            {
+                Vector3 direction = (end.position - start);
+                Vector3 perpendicular = Vector3.Cross(direction, Vector3.right).normalized;
+
+                Vector3 p1 = start + direction * 0.33f + perpendicular * sCurveHeight * directionMultiplier;
+                Vector3 p2 = start + direction * 0.66f - perpendicular * sCurveHeight * directionMultiplier;
+                float t = speedCurve.Evaluate(elapsed / duration);
+                transform.position = CubicBezier(start, p1, p2, end.position, t);
+                transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, 1.5f * Time.deltaTime);
+                transform.Rotate(elapsed * Time.deltaTime * 15f, t * Time.deltaTime * 15f, 15f * 15f * Time.deltaTime);
+                yield return null;
+            }
+            else
+                success = false;
         }
 
-        transform.position = end.position;
+        if (success)
+            transform.position = end.position;
+
         currentEvent?.Invoke(dirtAmount); // sadece SAYIYI güncellemek için çağrılıyor artık
 
         if (pool != null)

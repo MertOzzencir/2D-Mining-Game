@@ -7,11 +7,17 @@ using UnityEditor;
 
 public class DungeonManager : MonoBehaviour
 {
+    [Header("Cockroaches")]
+    [SerializeField] private bool createCockroachSpawner;
+    [Header("Gizmos Settings")]
     [SerializeField] private bool showBlockGizmos = false;
+    [SerializeField] private bool createBlackDust;
+
     [SerializeField] private Texture2D dungeonMap;
     [SerializeField] private UndestructableBase unbreakablePrefab;
     [SerializeField] private DestructableSO[] destructableData;
     [SerializeField] private GameObject dropPrefab;
+    [Header("Block Animation Settings")]
     [SerializeField] private int proxyPrewarmCountPerType = 5;
     [SerializeField] private int dirtParticlePrewarmCount = 10;
     [SerializeField] private int bouncePrewarmCountPerType = 3;
@@ -19,18 +25,25 @@ public class DungeonManager : MonoBehaviour
     [SerializeField] private float deathDuration = .35f;
     [SerializeField] private AnimationCurve deathCurve;
     [SerializeField] private float bounceScaleMultiplier = 1.2f;
+    [Header("World Prefabs")]
     [SerializeField] private GameObject wallPrefab;
     [SerializeField] private GameObject blackDust;
-    [SerializeField] private bool createBlackDust;
+    [SerializeField] private CockroachBase cockroachSpawnerPrefab;
+    [SerializeField] private DungeonGate gatePrefab;
+
     private BlockData[,] blocks;
     public InstancedDropRenderer instancedDropRenderer;
     private Dictionary<DropType, GenericObjectPool<Transform>> dropProxyPools = new();
     private Dictionary<ParticleBase, GenericObjectPool<ParticleBase>> dirtParticlePools = new();
     private Dictionary<DestructableSO, GenericObjectPool<Transform>> bouncePools = new();
     private static PlayerController player;
+    private DungeonGate gate;
+    private CockroachBase cockroachSpawner;
 
     void Awake()
     {
+        CreateCockroachSpawner();
+        CreateGate();
         instancedDropRenderer = GetComponent<InstancedDropRenderer>();
         player = FindAnyObjectByType<PlayerController>();
         blocks = new BlockData[dungeonMap.width, dungeonMap.height];
@@ -316,6 +329,24 @@ public class DungeonManager : MonoBehaviour
     {
         return dungeonMap.height;
     }
+    public int DungeonWidth()
+    {
+        return dungeonMap.width;
+    }
+    public bool IsPlayerOnDungeon()
+    {
+        return PlayerController.CurrentDungeon == this && GetPlayer() != null;
+    }
+    public Vector3 GetPlayerPosition()
+    {
+        if (player != null)
+            return player.transform.position;
+        else return cockroachSpawner.transform.position;
+    }
+    public PlayerController GetPlayer()
+    {
+        return player;
+    }
     private void PlayBounceAnimation(DestructableBase hitObject)
     {
         GenericObjectPool<Transform> pool = GetOrCreateBouncePool(hitObject.Data, hitObject.Data.VisualMesh.sharedMesh, hitObject.Data.VisualMaterial);
@@ -390,6 +421,28 @@ public class DungeonManager : MonoBehaviour
             }
         }
     }
+    private void CreateCockroachSpawner()
+    {
+        if (createCockroachSpawner)
+        {
+            cockroachSpawner = Instantiate(cockroachSpawnerPrefab, transform.position + new Vector3(transform.position.x, DungeonHeight() - 1, DungeonWidth() - 1), Quaternion.identity);
+            Debug.Log("Spawner Created");
+            cockroachSpawner.OnSelfCreated(this);
+        }
+    }
+    private void CreateGate()
+    {
+        gate = Instantiate(gatePrefab);
+        gate.SetGate(this);
+        gate.OnPlayerHasEntered += PlayerHasEntered;
+        gate.transform.parent = transform;
+    }
+
+    private void PlayerHasEntered()
+    {
+        cockroachSpawner.LetChildrenPlayerHasEntered();
+    }
+
     [ContextMenu("Debug")]
     public void DebugBlocks()
     {

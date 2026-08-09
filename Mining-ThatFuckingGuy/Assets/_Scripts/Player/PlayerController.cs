@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Backpack backpack;
     [SerializeField] private Transform headPosition;
 
-    public static DungeonManager CurrentDungeon;
+    public static DungeonManager CurrentDungeon { get; set; }
     private const float SKIN = 0.01f;
 
     private InputManager inputM;
@@ -235,7 +235,7 @@ public class PlayerController : MonoBehaviour
         animationController.BeforeDisable();
         toolController.enabled = false;
     }
-   
+
 
     private GenericObjectPool<ParticleBase> GetOrCreateEmptyParticlePool(ParticleBase prefab)
     {
@@ -335,8 +335,5 @@ public class PlayerController : MonoBehaviour
     {
         InputManager.OnJump -= Jump;
     }
-    public Vector3 CurrentPosition()
-    {
-        return transform.position;
-    }
+
 }
