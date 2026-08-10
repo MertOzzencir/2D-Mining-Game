@@ -26,7 +26,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform visual;
     [SerializeField] private float timeAirTimer;
     [SerializeField] private Backpack backpack;
-    [SerializeField] private Transform headPosition;
 
     public static DungeonManager CurrentDungeon { get; set; }
     private const float SKIN = 0.01f;
@@ -222,10 +221,7 @@ public class PlayerController : MonoBehaviour
     {
         return cameraMain;
     }
-    public Transform GetHead()
-    {
-        return headPosition;
-    }
+ 
     public HealthController GetHealthController()
     {
         return healthController;

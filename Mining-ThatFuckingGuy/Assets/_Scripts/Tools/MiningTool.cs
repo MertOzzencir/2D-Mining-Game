@@ -47,7 +47,7 @@ public class MiningTool : ToolBase
 
                     if (!wasHitting)
                     {
-                        hitNonStopVFX.Play(); 
+                        hitNonStopVFX.Play();
                     }
 
                     hitNonStopVFX.gameObject.transform.position = hit.point;
@@ -72,7 +72,7 @@ public class MiningTool : ToolBase
 
             if (!isHittingNow && wasHitting)
             {
-                hitNonStopVFX.Stop(false, ParticleSystemStopBehavior.StopEmitting); // vurmayı bıraktı, kapat
+                hitNonStopVFX.Stop(false, ParticleSystemStopBehavior.StopEmitting);
             }
 
             wasHitting = isHittingNow;
@@ -166,6 +166,7 @@ public class MiningTool : ToolBase
     public override void OnDisable()
     {
         base.OnDisable();
+        hitNonStopVFX.Stop(false, ParticleSystemStopBehavior.StopEmitting);
     }
 
 

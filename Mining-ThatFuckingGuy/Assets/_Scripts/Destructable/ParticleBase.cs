@@ -52,10 +52,10 @@ public class ParticleBase : MonoBehaviour
         if (success)
             transform.position = end.position;
 
-        currentEvent?.Invoke(dirtAmount); // sadece SAYIYI güncellemek için çağrılıyor artık
+        currentEvent?.Invoke(dirtAmount);
 
         if (pool != null)
-            pool.Release(this); // BU BACAK bitti, particle HEMEN geri dönüyor
+            pool.Release(this);
         else
             gameObject.SetActive(false);
     }

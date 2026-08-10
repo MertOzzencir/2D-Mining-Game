@@ -193,28 +193,33 @@ public class DungeonManager : MonoBehaviour
         }
 
         hitObject.OnHit -= HandleHitDestructable;
-
-        Backpack backpack = player.GetBackpack();
-        if (backpack.IsEmpty() && hitObject.Data.DirtParticleVFX != null)
-        {
-            ParticleBase vfxType = hitObject.Data.DirtParticleVFX;
-            GenericObjectPool<ParticleBase> dirtPool = GetOrCreateDirtPool(vfxType);
-            ParticleBase p = dirtPool.Get();
-            p.SetPool(dirtPool);
-            p.GetComponent<MeshRenderer>().material.SetColor("_BaseColor", hitObject.Data.Color);
-            p.PlayAnimation(hitObject.transform.position, backpack.transform, hitObject.Data.DirtValue, (amount) =>
-            {
-                backpack.AddDirt(amount);
-                player.AddCollectedDirt(hitObject.Data, amount); // vfxType yerine hitObject.Data
-            });
-        }
-
         if (hitObject is DropableDestructable dropable)
         {
             Vector3 spawnPos = hitObject.transform.position;
             instancedDropRenderer.RegisterDrop(dropable.DropData, dropable.DropData.Material, spawnPos);
         }
         PlayDeathAnimation(hitObject);
+        if (player != null)
+        {
+            Backpack backpack = player.GetBackpack();
+            if (backpack.IsEmpty() && hitObject.Data.DirtParticleVFX != null)
+            {
+                ParticleBase vfxType = hitObject.Data.DirtParticleVFX;
+                GenericObjectPool<ParticleBase> dirtPool = GetOrCreateDirtPool(vfxType);
+                ParticleBase p = dirtPool.Get();
+                p.SetPool(dirtPool);
+                p.GetComponent<MeshRenderer>().material.SetColor("_BaseColor", hitObject.Data.Color);
+                p.PlayAnimation(hitObject.transform.position, backpack.transform, hitObject.Data.DirtValue, (amount) =>
+                {
+
+                    backpack.AddDirt(amount);
+                    player.AddCollectedDirt(hitObject.Data, amount); // vfxType yerine hitObject.Data
+                });
+            }
+
+        }
+
+
     }
     private void GetPixelFromMap(Color mapColor, Vector3 spawnPosition, int zIndex, int yIndex, Vector3 worldPos, GameObject wall)
     {

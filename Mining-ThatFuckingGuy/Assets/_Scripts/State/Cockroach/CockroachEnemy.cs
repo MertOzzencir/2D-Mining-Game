@@ -11,6 +11,7 @@ public class CockroachEnemy : Enemy
     [SerializeField] private AnimationCurve speedCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private float scaleAnimationTime;
     [SerializeField] private Animator animator;
+    public float AttackAnimationCancelThreshold;
 
     public EnemyCockroachIdleState IdleState;
     public EnemyCockroachMoveState MoveState;
@@ -60,15 +61,7 @@ public class CockroachEnemy : Enemy
         StartCoroutine(ScaleAnimation(startScale, targetScale));
     }
 
-    public void AttackAnimationStart(Vector3 startPos, Transform endPos, Action animationEndConditionEvent)
-    {
-        if (endPos == null)
-        {
-            animationEndConditionEvent?.Invoke();
-            return;
-        }
-        StartCoroutine(AttackAnimation(startPos, endPos, animationEndConditionEvent));
-    }
+
 
     private IEnumerator ScaleAnimation(Vector3 startScale, Vector3 targetScale)
     {
@@ -90,14 +83,22 @@ public class CockroachEnemy : Enemy
             yield return null;
         }
     }
-
-    private IEnumerator AttackAnimation(Vector3 start, Transform end, Action animationEnd)
+    public void AttackAnimationStart(Vector3 startPos, Transform endPos, Action<bool, Vector3, Vector3> animationEndConditionEvent)
+    {
+        if (endPos == null)
+        {
+            animationEndConditionEvent?.Invoke(false, transform.position, transform.position);
+            return;
+        }
+        StartCoroutine(AttackAnimation(startPos, endPos, animationEndConditionEvent));
+    }
+    private IEnumerator AttackAnimation(Vector3 start, Transform end, Action<bool, Vector3, Vector3> animationEnd)
     {
 
         Vector3 xOffSetPosition = new Vector3(end.transform.position.x + xOffSet, end.transform.position.y, end.transform.position.z);
         Vector3 newDirection = (end.transform.position - xOffSetPosition).normalized;
         Vector3 jumpPosition = end.position;
-        Vector3 endPosition = end.position;
+        Vector3 firstAttackPosition = end.position;
         bool success = false;
         float elapsed = 0f;
 
@@ -117,6 +118,7 @@ public class CockroachEnemy : Enemy
             if (a.collider.GetComponent<PlayerController>())
             {
                 jumpPosition = a.point + directionToEnemy * offSetFromPlayerToSelf;
+                break;
             }
         }
         Quaternion lookRotation = Quaternion.LookRotation(-directionToEnemy, Vector3.right);
@@ -128,7 +130,7 @@ public class CockroachEnemy : Enemy
                 success = false;
                 break;
             }
-            if (Vector3.Distance(endPosition, end.position) >= PlayerFindDistance + 0.1f)
+            if (Vector3.Distance(firstAttackPosition, end.position) >= AttackAnimationCancelThreshold)
             {
                 success = false;
                 break;
@@ -141,10 +143,11 @@ public class CockroachEnemy : Enemy
             yield return null;
         }
 
-        animationEnd?.Invoke();
+        animationEnd?.Invoke(success, firstAttackPosition, directionToEnemy * offSetFromPlayerToSelf);
 
         if (success)
         {
+            Debug.Log("Attack Success");
             transform.position = jumpPosition;
         }
     }

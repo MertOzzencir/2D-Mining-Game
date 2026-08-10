@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8965629310460854797}
   - component: {fileID: 2563529922074912056}
   m_Layer: 0
-  m_Name: PrototypeCockroachBase
+  m_Name: CockroachBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,5 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   cockroachPrefab: {fileID: 4469163811126430502, guid: a71afa5bc37571748b47c6759145c80a, type: 3}
   cockroachSpawnLevels:
-  - Amount: 1
+  - Amount: 2
     Cooldown: 1
+  - Amount: 2
+    Cooldown: 5

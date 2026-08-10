@@ -744,6 +744,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   scaleAnimationTime: 0.61
   animator: {fileID: 4728240190537517166}
+  AttackAnimationCancelThreshold: 0.5
 --- !u!1 &5096678550174718631
 GameObject:
   m_ObjectHideFlags: 0
