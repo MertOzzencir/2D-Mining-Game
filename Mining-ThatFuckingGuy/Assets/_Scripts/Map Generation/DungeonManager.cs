@@ -7,6 +7,7 @@ using UnityEditor;
 
 public class DungeonManager : MonoBehaviour
 {
+    [SerializeField] private Vector3 dustOffSet;
     [Header("Cockroaches")]
     [SerializeField] private bool createCockroachSpawner;
     [Header("Gizmos Settings")]
@@ -27,12 +28,12 @@ public class DungeonManager : MonoBehaviour
     [SerializeField] private float bounceScaleMultiplier = 1.2f;
     [Header("World Prefabs")]
     [SerializeField] private GameObject wallPrefab;
-    [SerializeField] private GameObject blackDust;
     [SerializeField] private CockroachBase cockroachSpawnerPrefab;
     [SerializeField] private DungeonGate gatePrefab;
 
     private BlockData[,] blocks;
     public InstancedDropRenderer instancedDropRenderer;
+    private DustFieldRenderer dustFieldRenderer; // YENİ
     private Dictionary<DropType, GenericObjectPool<Transform>> dropProxyPools = new();
     private Dictionary<ParticleBase, GenericObjectPool<ParticleBase>> dirtParticlePools = new();
     private Dictionary<DestructableSO, GenericObjectPool<Transform>> bouncePools = new();
@@ -45,6 +46,7 @@ public class DungeonManager : MonoBehaviour
         CreateCockroachSpawner();
         CreateGate();
         instancedDropRenderer = GetComponent<InstancedDropRenderer>();
+        dustFieldRenderer = GetComponent<DustFieldRenderer>(); // YENİ — aynı GameObject'te olmalı
         player = FindAnyObjectByType<PlayerController>();
         blocks = new BlockData[dungeonMap.width, dungeonMap.height];
         CreateDungeon();
@@ -162,6 +164,7 @@ public class DungeonManager : MonoBehaviour
 
             }
         }
+        dustFieldRenderer.RebuildDirtyChunks(); // YENİ — ilk kurulumda işaretlenen tüm chunk'ları tek seferde inşa et
     }
 
     private void HandleHitDestructable(DestructableBase hitObject, bool isDead)
@@ -177,6 +180,7 @@ public class DungeonManager : MonoBehaviour
         ownData.CalculateCorners(this);
         RecalculateNeighborCorners(ownData);
         RevealSurroundingDust(ownData);
+        dustFieldRenderer.RebuildDirtyChunks(); // YENİ — bu hit'te etkilenen chunk(lar) hemen güncellensin
 
         int aboveY = ownData.YIndex + 1;
         for (int i = aboveY; i < blocks.GetLength(1); i++)
@@ -235,8 +239,7 @@ public class DungeonManager : MonoBehaviour
                 blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos, g.GetComponent<BoxCollider>().bounds.size);
                 if (createBlackDust)
                 {
-                    GameObject dust2 = Instantiate(blackDust, worldPos + Vector3.right / 2 * 1.15f, Quaternion.Euler(0, -90, 0));
-                    blocks[zIndex, yIndex].BlackDust = dust2;
+                    dustFieldRenderer.RegisterCell(zIndex, yIndex, worldPos + Vector3.right + dustOffSet); // DEĞİŞTİ — GameObject yerine chunk mesh'e kayıt
                 }
 
                 blocks[zIndex, yIndex].wall = wall;
@@ -258,8 +261,7 @@ public class DungeonManager : MonoBehaviour
         blocks[zIndex, yIndex] = new BlockData(zIndex, yIndex, false, worldPos, abstractBlock.GetComponent<BoxCollider>().bounds.size);
         if (createBlackDust)
         {
-            GameObject dust = Instantiate(blackDust, worldPos + Vector3.right / 2 * 1.15f, Quaternion.Euler(0, -90, 0));
-            blocks[zIndex, yIndex].BlackDust = dust;
+            dustFieldRenderer.RegisterCell(zIndex, yIndex, worldPos + Vector3.right + dustOffSet); // DEĞİŞTİ
         }
         blocks[zIndex, yIndex].CurrentBlock = abstractBlock;
         blocks[zIndex, yIndex].wall = wall;
@@ -420,10 +422,7 @@ public class DungeonManager : MonoBehaviour
                 continue;
 
             BlockData neighbor = blocks[nz, ny];
-            if (neighbor.BlackDust != null)
-            {
-                neighbor.BlackDust.SetActive(false);
-            }
+            dustFieldRenderer.HideCell(neighbor.ZIndex, neighbor.YIndex); // DEĞİŞTİ — eski "if (neighbor.BlackDust != null) SetActive(false)" yerine
         }
     }
     private void CreateCockroachSpawner()

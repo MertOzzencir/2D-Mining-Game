@@ -11,6 +11,7 @@ public class CockroachEnemy : Enemy
     [SerializeField] private AnimationCurve speedCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private float scaleAnimationTime;
     [SerializeField] private Animator animator;
+    [SerializeField] private ParticleSystem moveVFX;
     public float AttackAnimationCancelThreshold;
 
     public EnemyCockroachIdleState IdleState;
@@ -46,11 +47,11 @@ public class CockroachEnemy : Enemy
     public override void InitilizeStates()
     {
         IdleState = new EnemyCockroachIdleState(StateMachine, this, Player);
-        MoveState = new EnemyCockroachMoveState(StateMachine, this, Player, PlayerFindDistance);
+        MoveState = new EnemyCockroachMoveState(StateMachine, this, Player, PlayerFindDistance,moveVFX);
         DiveState = new EnemyCockroachMoveDiveState(StateMachine, this, Player);
         AttackReadyState = new EnemyCockroachAttackReadyState(StateMachine, this, Player);
         AttackState = new EnemyCockroachAttackState(StateMachine, this, Player);
-        ReturnBaseState = new EnemyCockroachBackToBaseState(StateMachine, this, Player);
+        ReturnBaseState = new EnemyCockroachBackToBaseState(StateMachine, this, Player,moveVFX);
         InactiveState = new EnemyCockroachInactiveState(StateMachine, this, Player);
         StateMachine.Initilize(InactiveState);
         InactiveState.ActiveSelf();

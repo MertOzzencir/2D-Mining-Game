@@ -2,16 +2,25 @@ using UnityEngine;
 
 public class EnemyCockroachBackToBaseState : EnemyCockroachState
 {
+
     public Vector3 currentDestination;
-    public EnemyCockroachBackToBaseState(StateMachine stateMachine, CockroachEnemy owner, PlayerController player) : base(stateMachine, owner, player)
+    private ParticleSystem moveVFX;
+    public EnemyCockroachBackToBaseState(StateMachine stateMachine, CockroachEnemy owner, PlayerController player, ParticleSystem moveVFX) : base(stateMachine, owner, player)
     {
+        this.moveVFX = moveVFX;
     }
     public override void Enter()
     {
         base.Enter();
+        moveVFX.Play();
         Owner.IsReturningToBase = true;
         Owner.DiveState.SetDynamicState(this);
         FindClosestBlock();
+    }
+    public override void Exit()
+    {
+        base.Exit();
+        moveVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
     }
     public override void Update()
     {

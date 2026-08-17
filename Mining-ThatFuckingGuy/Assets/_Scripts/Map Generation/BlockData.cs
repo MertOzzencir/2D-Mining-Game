@@ -6,7 +6,6 @@ using UnityEngine;
 public class BlockData
 {
     public DestructableBase CurrentBlock;
-    public GameObject BlackDust;
     public GameObject wall;
     public int ZIndex;
     public int YIndex;

@@ -4,9 +4,11 @@ public class EnemyCockroachMoveState : EnemyCockroachState
 {
     private Vector3 currentDestination;
     private float playerFindDistance;
-    public EnemyCockroachMoveState(StateMachine stateMachine, CockroachEnemy owner, PlayerController player, float findDistance) : base(stateMachine, owner, player)
+    private ParticleSystem moveVFX;
+    public EnemyCockroachMoveState(StateMachine stateMachine, CockroachEnemy owner, PlayerController player, float findDistance,ParticleSystem moveVFX) : base(stateMachine, owner, player)
     {
         playerFindDistance = findDistance;
+        this.moveVFX = moveVFX;
     }
 
     public override void Enter()
@@ -14,11 +16,13 @@ public class EnemyCockroachMoveState : EnemyCockroachState
         base.Enter();
         Owner.DiveState.SetDynamicState(this);
         FindClosestBlock();
+        moveVFX.Play();
     }
 
     public override void Exit()
     {
         base.Exit();
+        moveVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
     }
 
     public override void Update()

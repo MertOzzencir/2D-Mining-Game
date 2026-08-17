@@ -13,7 +13,8 @@ public class EnemyCockroachAttackState : EnemyCockroachState
     {
         base.Enter();
         checkThreshhold = false;
-        Owner.AttackAnimationStart(Owner.transform.position, Player.transform, AttackEnd);
+        if (Player != null)
+            Owner.AttackAnimationStart(Owner.transform.position, Player.transform, AttackEnd);
     }
     public override void Exit()
     {
