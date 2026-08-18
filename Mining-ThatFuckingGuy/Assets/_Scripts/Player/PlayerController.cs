@@ -5,7 +5,7 @@ using Unity.Cinemachine;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
-{
+{   
     [SerializeField] private int particlesPerFrame = 5;
     [SerializeField] private float dirtPerParticle = 10f;
     [SerializeField] private int emptyParticlePrewarmCountPerType = 4;

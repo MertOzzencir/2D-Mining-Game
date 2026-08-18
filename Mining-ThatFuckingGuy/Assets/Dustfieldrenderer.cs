@@ -17,7 +17,8 @@ public class DustFieldRenderer : MonoBehaviour
 {
     [SerializeField] private Material dustMaterial;
     [SerializeField] private int chunkSize = 16;
-
+    [SerializeField] private int subdivisions = 4;
+    [SerializeField] private float fadeSharpness = 3f;
     private class Chunk
     {
         public Mesh mesh;
@@ -138,6 +139,7 @@ public class DustFieldRenderer : MonoBehaviour
 
         int zStart = coord.x * chunkSize;
         int yStart = coord.y * chunkSize;
+        int res = subdivisions + 1; // her eksende vertex satırı sayısı
 
         for (int z = zStart; z < zStart + chunkSize; z++)
         {
@@ -146,25 +148,51 @@ public class DustFieldRenderer : MonoBehaviour
                 if (!IsHidden(z, y)) continue;
 
                 Vector3 pos = cellPositions[new Vector2Int(z, y)];
-                int v = vertexBuffer.Count;
 
-                // Quad Y-Z duzleminde (dungeon'daki wall/dust yerlesimiyle ayni eksen)
-                vertexBuffer.Add(pos + new Vector3(0.0f, -0.5f, -0.5f));
-                vertexBuffer.Add(pos + new Vector3(0.0f, -0.5f, 0.5f));
-                vertexBuffer.Add(pos + new Vector3(0.0f, 0.5f, 0.5f));
-                vertexBuffer.Add(pos + new Vector3(0.0f, 0.5f, -0.5f));
+                // Dört gerçek köşe alpha'sı - eskisiyle AYNI hesap
+                float a00 = CornerColor(z, y, -1, -1).a; // sol-alt
+                float a10 = CornerColor(z, y, 1, -1).a;  // sağ-alt
+                float a11 = CornerColor(z, y, 1, 1).a;   // sağ-üst
+                float a01 = CornerColor(z, y, -1, 1).a;  // sol-üst
 
-                // Her kosenin alpha'si, o koseyi paylasan 4 hucreden kacinin
-                // hala hidden oldugu sayisina (0..4) gore
-                colorBuffer.Add(CornerColor(z, y, -1, -1)); // v0
-                colorBuffer.Add(CornerColor(z, y, 1, -1));  // v1
-                colorBuffer.Add(CornerColor(z, y, 1, 1));   // v2
-                colorBuffer.Add(CornerColor(z, y, -1, 1));  // v3
+                int baseIndex = vertexBuffer.Count;
 
-                triangleBuffer.Add(v); triangleBuffer.Add(v + 2); triangleBuffer.Add(v + 1);
-                triangleBuffer.Add(v); triangleBuffer.Add(v + 3); triangleBuffer.Add(v + 2);
-                // Quad'lar gorunmuyorsa (backface culling), Shader Graph'ta
-                // Render Face: Both sec, boylece burayla ugrasmana gerek kalmaz.
+                for (int iy = 0; iy < res; iy++)
+                {
+                    float v = iy / (float)subdivisions;
+                    for (int iz = 0; iz < res; iz++)
+                    {
+                        float u = iz / (float)subdivisions;
+
+                        float localZ = Mathf.Lerp(-0.5f, 0.5f, u);
+                        float localY = Mathf.Lerp(-0.5f, 0.5f, v);
+                        vertexBuffer.Add(pos + new Vector3(0f, localY, localZ));
+
+                        // Gerçek bilinear interpolasyon
+                        float bottom = Mathf.Lerp(a00, a10, u);
+                        float top = Mathf.Lerp(a01, a11, u);
+                        float alpha = Mathf.Lerp(bottom, top, v);
+
+                        // Doğrusal geçişi, iç kısım uzun süre opak kalan bir eğriye çeviriyoruz
+                        alpha = 1f - Mathf.Pow(1f - alpha, fadeSharpness);
+
+                        colorBuffer.Add(new Color(0f, 0f, 0f, alpha));
+                    }
+                }
+
+                for (int iy = 0; iy < subdivisions; iy++)
+                {
+                    for (int iz = 0; iz < subdivisions; iz++)
+                    {
+                        int i00 = baseIndex + iy * res + iz;
+                        int i10 = i00 + 1;
+                        int i01 = i00 + res;
+                        int i11 = i01 + 1;
+
+                        triangleBuffer.Add(i00); triangleBuffer.Add(i11); triangleBuffer.Add(i10);
+                        triangleBuffer.Add(i00); triangleBuffer.Add(i01); triangleBuffer.Add(i11);
+                    }
+                }
             }
         }
 
@@ -174,7 +202,6 @@ public class DustFieldRenderer : MonoBehaviour
         chunk.mesh.SetTriangles(triangleBuffer, 0);
         chunk.mesh.RecalculateBounds();
     }
-
     // cellZ,cellY = quad'in ait oldugu hucre; dz,dy = hangi koseye baktigimiz (-1/+1)
     private Color CornerColor(int cellZ, int cellY, int dz, int dy)
     {

@@ -41,8 +41,8 @@ Material:
     - _BlinkingSpeed: 0.0002
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _StarDensity: 600
-    - _StartsPower: 37.66
+    - _StarDensity: 1314.15
+    - _StartsPower: 27.3
     m_Colors:
     - _StartsColor: {r: 28.51895, g: 13.337026, b: 14.008486, a: 1}
   m_BuildTextureStacks: []
