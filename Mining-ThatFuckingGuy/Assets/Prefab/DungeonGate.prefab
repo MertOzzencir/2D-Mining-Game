@@ -158,3 +158,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   animationTimer: 13
+  yOffSet: 1.5

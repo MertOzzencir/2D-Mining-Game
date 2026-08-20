@@ -6,6 +6,7 @@ public class DungeonGate : MonoBehaviour
 {
     public event Action OnPlayerHasEntered;
     [SerializeField] private float animationTimer = 5f;
+    [SerializeField] private float yOffSet = 1.25f;
     private DungeonManager owner;
     private Robot currentRobot;
     public void AcceptRobot(Robot robot, out bool success)
@@ -29,7 +30,7 @@ public class DungeonGate : MonoBehaviour
     {
         while (Mathf.Abs(robot.transform.position.y - transform.position.y) > 0.01f)
         {
-            robot.transform.position = Vector3.Lerp(robot.transform.position, new Vector3(robot.transform.position.x, transform.position.y, robot.transform.position.z), animationTimer * Time.deltaTime);
+            robot.transform.position = Vector3.Lerp(robot.transform.position, new Vector3(robot.transform.position.x, transform.position.y + yOffSet, robot.transform.position.z), animationTimer * Time.deltaTime);
             yield return null;
         }
         robot.transform.position = new Vector3(robot.transform.position.x, transform.position.y, robot.transform.position.z);
