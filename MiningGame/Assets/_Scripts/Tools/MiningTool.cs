@@ -34,10 +34,10 @@ public class MiningTool : ToolBase
         direction.x = 0;
         direction = direction.normalized;
         Ray hitRay = new Ray(AimPositionTransform.position, direction);
+        bool isHittingNow = false;
 
         if (MainUseState)
         {
-            bool isHittingNow = false;
 
             if (Physics.Raycast(hitRay, out RaycastHit hit, Stats[UpgradeType.Range], destructable))
             {
@@ -166,10 +166,20 @@ public class MiningTool : ToolBase
     public override void OnDisable()
     {
         base.OnDisable();
+        wasHitting = true;
         hitNonStopVFX.Stop(false, ParticleSystemStopBehavior.StopEmitting);
     }
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        hitNonStopVFX.transform.parent = transform;
+    }
 
-
+    public override void DeEquip()
+    {
+        hitNonStopVFX.transform.parent = null;
+        base.DeEquip();
+    }
 
     public Dictionary<DropSO, int> DropsOnTool()
     {

@@ -14,6 +14,7 @@ public class RobotUseController : MonoBehaviour
         robot = FindAnyObjectByType<Robot>();
         player.OnEnterRobot();
         robot.GetInRobot(player);
+        robot.GetOutGateSetup();
         isRiding = true;
     }
     private void UseRobot()

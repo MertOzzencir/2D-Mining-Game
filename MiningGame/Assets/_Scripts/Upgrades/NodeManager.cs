@@ -7,6 +7,8 @@ public class NodeManager : MonoBehaviour
 
     void Awake()
     {
+        Robot.OnGateEnterState += ActiveSelf;
+
         allNodes = GetComponentsInChildren<UpgradeNode>(true);
         foreach (var a in allNodes)
         {
@@ -26,5 +28,9 @@ public class NodeManager : MonoBehaviour
                 a.OpenSelf();
             }
         }
+    }
+    private void ActiveSelf(bool obj)
+    {
+        gameObject.SetActive(obj);
     }
 }
